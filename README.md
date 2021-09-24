@@ -1,0 +1,2 @@
+# CppLogging
+Logging for C++
