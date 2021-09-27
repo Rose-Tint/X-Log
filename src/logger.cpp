@@ -1,5 +1,5 @@
-#include "../headers/logger.hpp"
-#include "../headers/errors.hpp"
+#include "headers/logger.hpp"
+#include "headers/errors.hpp"
 
 
 namespace logging

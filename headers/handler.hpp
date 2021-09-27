@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "./severity.hpp"
+#include "severity.hpp"
 
 
 namespace logging

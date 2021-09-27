@@ -11,9 +11,9 @@
 #include <initializer_list>
 #include <exception>
 
-#include "./handler.hpp"
-#include "./severity.hpp"
-#include "./format.hpp"
+#include "handler.hpp"
+#include "severity.hpp"
+#include "format.hpp"
 
 
 namespace logging

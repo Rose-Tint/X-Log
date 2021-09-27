@@ -1,0 +1,3 @@
+#pragma once
+#include "CppLogging/headers/logging.hpp"
+#include "CppLogging/headers/errors.hpp"
