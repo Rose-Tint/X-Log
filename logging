@@ -1,3 +1,4 @@
 #pragma once
+#include "CppLogging/headers/stl_includes"
 #include "CppLogging/headers/logging.hpp"
 #include "CppLogging/headers/errors.hpp"

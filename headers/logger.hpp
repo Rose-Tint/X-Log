@@ -1,29 +1,11 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
-#ifdef __cpp_lib_experimental_filesystem
-#elif !defined( __cpp_lib_filesystem )
-#include <filesystem>
-#endif
 
-#include <map>
-#include <string>
-#include <fstream>
-#include <initializer_list>
-#include <exception>
-
-#include "handler.hpp"
-#include "severity.hpp"
-#include "format.hpp"
+#include "stl_includes"
 
 
 namespace logging
 {
-#ifdef __cpp_lib_filesystem
-    namespace fs = std::filesystem;
-#elif !defined( __cpp_lib_experimental_filesystem )
-    namespace fs = std::experimental::filesystem;
-#endif
-
     typedef std::streambuf* buffer_t;
 
     template<typename T>
@@ -87,7 +69,7 @@ namespace logging
 
     Logger& get_logger(std::string);
 }
-#ifndef NO_AUTOMATIC_LOGGER
+#ifndef NO_PREDEF_LOGGER
 #include <iostream>
 logging::Logger main_lgr = Logger("main", std::cout.rdbuf());
 #endif
