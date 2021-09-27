@@ -5,7 +5,8 @@
 
 #ifndef X_LOG_NO_PREDEF_LOGGER
 #include <iostream>
-xlog::Logger main_lgr = xlog::Logger("main", std::cout.rdbuf());
+#include <string>
+xlog::Logger main_lgr = xlog::Logger(std::string("main"), std::cout.rdbuf());
 #endif
 
 #ifndef X_LOG_NO_AUTO_LOG_MACRO
