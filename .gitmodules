@@ -1,0 +1,3 @@
+[submodule "lib/X-Test"]
+	path = lib/X-Test
+	url = https://github.com/Xenovia02/X-Test.git
