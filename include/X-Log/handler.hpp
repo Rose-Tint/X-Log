@@ -3,16 +3,14 @@
 
 #include <string>
 
-#include "X-Log/severity.hpp"
-#include "X-Log/message.hpp"
 #include "X-Log/format.hpp"
 
 
 namespace xlog
 {
-    typedef void (*PreFilter)(Message&);
-    typedef bool (*Filter)(const Message&);
-    typedef void (*PostFilter)(Message&);
+    typedef void (*PreFilter)(::std::string&);
+    typedef bool (*Filter)(const ::std::string&);
+    typedef void (*PostFilter)(::std::string&);
 
     class Handler
     {
@@ -20,14 +18,14 @@ namespace xlog
         PreFilter pre;
         Filter filter;
         PostFilter post;
-        Severity min;
-        Severity max;
+        unsigned int min;
+        unsigned int max;
 
-        static bool def_filter(const Message&) { return true; }
+        static bool def_filter(const ::std::string&) { return true; }
 
         public:
         Handler& operator=(const Handler&) = default;
-        explicit Handler(Severity, Severity = FATAL, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
+        explicit Handler(unsigned int, unsigned int = 100, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
 
         void set_prefilter(PreFilter);
         void set_filter(Filter);
@@ -37,7 +35,7 @@ namespace xlog
         void rm_filter() { filter = def_filter; }
         void rm_postfilter() { post = nullptr; }
 
-        bool operator()(Message&, FormatInfo) const;
+        bool operator()(FormatInfo) const;
     };
 }
 
