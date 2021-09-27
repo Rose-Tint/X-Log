@@ -1,10 +1,10 @@
-#ifndef ERRORS_HPP
-#define ERRORS_HPP
+#ifndef X_LOG_ERRORS_HPP
+#define X_LOG_ERRORS_HPP
 
 #include <exception>
 
 
-namespace logging
+namespace xlog
 {
     namespace err
     {
@@ -15,17 +15,22 @@ namespace logging
 
         class NoViableHandler : public Error
         {
-            ;
+            using Error::Error;
         }
 
         class NoExistingLogger : public Error
         {
-            ;
+            using Error::Error;
         }
 
         class FileCannotBeOpened : public Error
         {
-            ;
+            using Error::Error;
+        }
+
+        class InvalidArgName : public Error
+        {
+            using Error::Error;
         }
     }
 }

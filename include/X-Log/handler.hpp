@@ -1,14 +1,15 @@
-#ifndef HANDLER_HPP
-#define HANDLER_HPP
+#ifndef X_LOG_HANDLER_HPP
+#define X_LOG_HANDLER_HPP
 
 #include <string>
 
-#include "severity.hpp"
+#include "X-Log/severity.hpp"
+#include "X-Log/message.hpp"
+#include "X-Log/format.hpp"
 
 
-namespace logging
+namespace xlog
 {
-    typedef std::string Message;
     typedef void (*PreFilter)(Message&);
     typedef bool (*Filter)(const Message&);
     typedef void (*PostFilter)(Message&);
@@ -26,21 +27,17 @@ namespace logging
 
         public:
         Handler& operator=(const Handler&) = default;
-        explicit Handler(Severity = TEST, Severity = FATAL, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
-
-        Handler(const Handler&) = delete;
-        Handler(Handler&&) = delete;
-        Handler& operator=(Handler&&) = delete;
+        explicit Handler(Severity, Severity = FATAL, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
 
         void set_prefilter(PreFilter);
         void set_filter(Filter);
         void set_postfilter(PostFilter);
 
         void rm_prefilter() { pre = nullptr; }
-        void rm_filter();
+        void rm_filter() { filter = def_filter; }
         void rm_postfilter() { post = nullptr; }
 
-        const Message& operator()(Message&) const;
+        bool operator()(Message&, FormatInfo) const;
     };
 }
 
