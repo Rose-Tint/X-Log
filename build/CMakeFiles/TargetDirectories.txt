@@ -1,2 +1,0 @@
-C:/Users/Owner/Documents/VSCode/X-log/build/CMakeFiles/edit_cache.dir
-C:/Users/Owner/Documents/VSCode/X-log/build/CMakeFiles/rebuild_cache.dir
