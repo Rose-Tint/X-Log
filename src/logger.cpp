@@ -7,8 +7,6 @@ namespace xlog
 
     ::std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" }
 
-    Format Logger::def_fmt = Format("${date} | ${file} - line ${line}: ${msg}");
-
     void Logger::LogStream::write(const ::std::string& str)
     {
         for (buffer_t buf : buffers)
@@ -116,14 +114,10 @@ namespace xlog
         handlers[h.min].push_back(h);
     }
 
-    Logger::LogStream termination_stream = { std::cout.rdbuf() }
-
     void Logger::set_termination_stream(buffer_t buf)
     {
         termination_stream = {{ buf }};
     }
-
-    std::string Logger::termination_msg = "Program terminated\n";
 
     void Logger::set_termination_msg(const ::std::string& msg)
     {
@@ -146,20 +140,29 @@ namespace xlog
         log_exts.insert(ext);
     }
 
-    void Logger::log(::std::string msg, const int& lvl, FormatInfo info)
+    void Logger::exc_log(const ::std::string& msg, const int& lvl, FormatInfo& info)
     {
+        ::std::lock_gaurd lock(log_mtx);
+
         info.msg = msg;
         info.lgr_name = name;
         info.lvl = lvl;
-
         const ::std::vector<Handler>& handlers = get_handlers(lvl);
         for (const Handler& handle : handlers)
         {
             // if handle's filter returns false, return
-            if (!handle(info)) return;
+            if (!handle(info))
+            {
+                return;
+            }
         }
-        msg = fmt(info);
-        lstream.write(info.msg);
+
+        lstream.write(fmt(info));
+    }
+
+    void Logger::log(const ::std::string& msg, const int& lvl, FormatInfo info)
+    {
+        ::std::jthread thread(exc_log, msg, lvl, info);
     }
 
     void Logger::log_all(::std::string msg, const int& lvl, FormatInfo info)

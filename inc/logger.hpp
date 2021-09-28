@@ -13,6 +13,8 @@ namespace xlog
     {
         friend Logger& get_logger(::std::string);
 
+        typedef ::std::unique_lock<::std::mutex> ulock_t;
+
         struct LogStream
         {
             ::std::vector<buffer_t> buffers;
@@ -20,10 +22,14 @@ namespace xlog
             ~LogStream();
         };
 
+        // for multithreading
+        static ::std::mutex log_mtx;
+
+        static inline ::std::unordered_map<::std::string&, Logger*> loggers = { };
+        static inline LogStream termination_stream = LogStream(std::cout.rdbuf());
+        static inline ::std::string termination_msg = "Program Terminated\n";
+        static inline Format def_fmt = Format("${date} | ${file} - line ${line}: ${msg}");
         static ::std::unordered_set<::std::string> log_exts;
-        static ::std::unordered_map<::std::string&, Logger*> loggers;
-        static LogStream termination_stream;
-        static ::std::string termination_msg;
         static void termination_h();
 
         ::std::string name;
@@ -33,8 +39,7 @@ namespace xlog
         ::std::vector<fs::path> open_fpaths;
 
         const ::std::vector<Handler>& get_handlers(const int&);
-
-        static Format def_fmt;
+        void exc_log(const ::std::string&, const int&, FormatInfo&);
 
       public:
         Logger() = delete;
@@ -62,7 +67,7 @@ namespace xlog
         void add_path(fs::path);
         void add_handler(Handler);
         void set_format(Format format = def_fmt) { fmt = format; }
-        void log(::std::string, const int&, FormatInfo);
+        ::std::jthread& log(const ::std::string&, const int&, FormatInfo);
     };
 }
 #endif
