@@ -8,7 +8,7 @@ class FormatTests final : private xtst::TestBase
 {
     using TestBase::TestBase;
     static bool test_Format(std::string, std::string, xlog::FormatInfo);
-    virtual bool run() override final;
+    bool run() override final;
 };
 
 

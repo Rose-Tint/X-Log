@@ -1,5 +1,6 @@
 #include "./format.hpp"
 #include <ctime>
+#include <iostream>
 
 
 int main()
@@ -10,7 +11,7 @@ int main()
     xtst::TestBase::print_stack(std::ctime(&t));
     xtst::TestBase::inc_idt();
 
-    FormatTests fmt_tests();
+    FormatTests fmt_tests = FormatTests();
 
     xtst::TestBase::run_tests();
 
