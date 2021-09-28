@@ -1,7 +1,7 @@
 #ifndef X_LOG_HPP
 #define X_LOG_HPP
 
-#include "X-Log/logger.hpp"
+#include "logger.hpp"
 
 #ifndef X_LOG_NO_PREDEF_LOGGER
 #include <iostream>
@@ -21,7 +21,7 @@ xlog::Logger main_lgr = xlog::Logger(std::string("main"), std::cout.rdbuf());
 
 #ifdef X_LOG_AUTO_THROW_LOG
 #ifndef CX_LOG_THROW_MSG
-#define CX_LOG_THROW_MSG "Error thrown at ${file}, ${line}"
+#define CX_LOG_THROW_MSG "Error thrown"
 #endif
 #define throw xlog::Logger::log_all({ CX_LOG_THROW_MSG, xlog::ERROR }, __INFO__); throw 
 #endif

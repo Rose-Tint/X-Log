@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "X-Log/format.hpp"
+#include "format.hpp"
 
 
 namespace xlog
