@@ -5,6 +5,10 @@ namespace xlog
 {
     ::std::unordered_map<::std::string&, Logger*> Logger::loggers = { };
 
+    ::std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" }
+
+    Format Logger::def_fmt = Format("${date} | ${file} - line ${line}: ${msg}");
+
     void Logger::LogStream::write(const ::std::string& str)
     {
         for (buffer_t buf : buffers)
@@ -112,10 +116,14 @@ namespace xlog
         handlers[h.min].push_back(h);
     }
 
+    Logger::LogStream termination_stream = { std::cout.rdbuf() }
+
     void Logger::set_termination_stream(buffer_t buf)
     {
         termination_stream = {{ buf }};
     }
+
+    std::string Logger::termination_msg = "Program terminated\n";
 
     void Logger::set_termination_msg(const ::std::string& msg)
     {
@@ -127,6 +135,15 @@ namespace xlog
         auto old_h = ::std::get_terminate();
         log_all(termination_msg, 100, {});
         old_h();
+    }
+
+    void Logger::add_ext(std::string ext)
+    {
+        if (ext[0] != '.')
+        {
+            ext.insert(0, 1, ".");
+        }
+        log_exts.insert(ext);
     }
 
     void Logger::log(::std::string msg, const int& lvl, FormatInfo info)
@@ -147,6 +164,9 @@ namespace xlog
 
     void Logger::log_all(::std::string msg, const int& lvl, FormatInfo info)
     {
-        for (auto pair : loggers) pair.second->log(msg, lvl, info);
+        for (auto pair : loggers)
+        {
+            pair.second->log(msg, lvl, info);
+        }
     }
 }

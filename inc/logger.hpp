@@ -29,7 +29,7 @@ namespace xlog
         ::std::string name;
         LogStream lstream;
         Format fmt;
-        ::std::map<int, ::std::vector<Handler>> handlers;
+        ::std::unordered_map<int, ::std::vector<Handler>> handlers;
         ::std::vector<fs::path> open_fpaths;
 
         const ::std::vector<Handler>& get_handlers(const int&);
@@ -53,15 +53,15 @@ namespace xlog
         ~Logger();
 
         static void log_all(::std::string, const int&, FormatInfo);
-        static void add_ext(const ::std::string&);
+        static void add_ext(::std::string);
         static void set_termination_stream(buffer_t);
         static void set_termination_msg(const ::std::string&);
 
-        void rename(::std::string);
+        void rename(::std::string rn) { name = std::move(rn); }
         void register_buffer(::std::streambuf*);
         void add_path(fs::path);
         void add_handler(Handler);
-        void set_format(Format = def_fmt);
+        void set_format(Format format = def_fmt) { fmt = format; }
         void log(::std::string, const int&, FormatInfo);
     };
 }

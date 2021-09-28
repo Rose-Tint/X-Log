@@ -8,13 +8,12 @@
 
 namespace xlog
 {
-    typedef void (*PreFilter)(::std::string&);
-    typedef bool (*Filter)(const ::std::string&);
-    typedef void (*PostFilter)(::std::string&);
+    typedef void (*PreFilter)(FormatInfo&);
+    typedef bool (*Filter)(const FormatInfo&);
+    typedef void (*PostFilter)(FormatInfo&);
 
     class Handler
     {
-        friend class Logger;
         PreFilter pre;
         Filter filter;
         PostFilter post;
@@ -24,18 +23,17 @@ namespace xlog
         static bool def_filter(const ::std::string&) { return true; }
 
         public:
-        Handler& operator=(const Handler&) = default;
         explicit Handler(unsigned int, unsigned int = 100, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
 
-        void set_prefilter(PreFilter);
-        void set_filter(Filter);
-        void set_postfilter(PostFilter);
+        void set_prefilter(PreFilter pref) { pre = pref; }
+        void set_filter(Filter filt) { filter = filt; }
+        void set_postfilter(PostFilter postf) { post = postf; }
 
         void rm_prefilter() { pre = nullptr; }
         void rm_filter() { filter = def_filter; }
         void rm_postfilter() { post = nullptr; }
 
-        bool operator()(FormatInfo) const;
+        bool operator()(FormatInfo&) const;
     };
 }
 

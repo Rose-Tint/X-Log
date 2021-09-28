@@ -10,27 +10,32 @@ namespace xlog
     {
         class Error : public ::std::exception
         {
-            using ::std::exception::exception;
+            ;
         };
 
         class NoViableHandler : public Error
         {
-            using Error::Error;
+            ;
         };
 
         class NoExistingLogger : public Error
         {
-            using Error::Error;
+            ;
         };
 
         class FileCannotBeOpened : public Error
         {
-            using Error::Error;
+            ;
         };
+
+        class FormatArgNotFound : public Error
+        {
+            ;
+        }
 
         class InvalidArgName : public Error
         {
-            using Error::Error;
+            ;
         };
     }
 }
