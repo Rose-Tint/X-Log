@@ -6,15 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_library(X_Log SHARED X-Log.hpp)
 
-target_include_directories(X_Log
-    PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/inc"
-    INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+set_target_properties(X_Log PROPERTIES LINKER_LANGUAGE CXX)
+
+target_include_directories(X_Log PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/inc")
 
 install(TARGETS X_Log
-    EXPORT X_Log
-    LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    EXPORT X_LogTargets
+    LIBRARY DESTINATION lib ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION lib ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION bin ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION include ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(FILES
@@ -23,10 +24,10 @@ install(FILES
     inc/handler.hpp
     inc/logger.hpp
     inc/stl_includes.hpp
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    DESTINATION include ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(EXPORT X_Log
+install(EXPORT X_LogTargets
     FILE X-LogLib.cmake
     NAMESPACE xlog::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/X-Log
