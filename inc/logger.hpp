@@ -67,7 +67,7 @@ namespace xlog
         void add_path(fs::path);
         void add_handler(Handler);
         void set_format(Format format = def_fmt) { fmt = format; }
-        ::std::jthread& log(const ::std::string&, const int&, FormatInfo);
+        void log(const ::std::string&, const int&, FormatInfo);
     };
 }
 #endif
