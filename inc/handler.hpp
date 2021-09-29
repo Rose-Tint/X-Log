@@ -17,13 +17,12 @@ namespace xlog
         PreFilter pre;
         Filter filter;
         PostFilter post;
-        unsigned int min;
-        unsigned int max;
+        unsigned int lvl;
 
-        static bool def_filter(const ::std::string&) { return true; }
+        static bool def_filter(const FormatInfo&) { return true; }
 
         public:
-        explicit Handler(unsigned int, unsigned int = 100, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
+        explicit Handler(unsigned int, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
 
         void set_prefilter(PreFilter pref) { pre = pref; }
         void set_filter(Filter filt) { filter = filt; }
@@ -32,6 +31,8 @@ namespace xlog
         void rm_prefilter() { pre = nullptr; }
         void rm_filter() { filter = def_filter; }
         void rm_postfilter() { post = nullptr; }
+
+        const unsigned int& get_lvl() const { return lvl; }
 
         bool operator()(FormatInfo&) const;
     };
