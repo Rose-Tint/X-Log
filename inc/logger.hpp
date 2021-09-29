@@ -13,7 +13,12 @@ namespace xlog
     {
         friend Logger& get_logger(::std::string);
 
-        typedef ::std::unique_lock<::std::mutex> ulock_t;
+        typedef ::std::lock_guard<::std::mutex> lock_gaurd_t;
+#if __cplusplus >= 202002L // c++20 or newer
+        typedef ::std::jthread thread_t;
+#else
+        typedef ::std::thread thread_t;
+#endif
 
         struct LogStream
         {
@@ -26,7 +31,7 @@ namespace xlog
         static ::std::mutex log_mtx;
 
         static inline ::std::unordered_map<::std::string&, Logger*> loggers = { };
-        static inline LogStream termination_stream = LogStream(std::cout.rdbuf());
+        static inline LogStream termination_stream = LogStream {{::std::cout.rdbuf()}};
         static inline ::std::string termination_msg = "Program Terminated\n";
         static inline Format def_fmt = Format("${date} | ${file} - line ${line}: ${msg}");
         static ::std::unordered_set<::std::string> log_exts;

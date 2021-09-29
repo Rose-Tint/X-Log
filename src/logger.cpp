@@ -5,7 +5,7 @@ namespace xlog
 {
     ::std::unordered_map<::std::string&, Logger*> Logger::loggers = { };
 
-    ::std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" }
+    ::std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" };
 
     void Logger::LogStream::write(const ::std::string& str)
     {
@@ -43,7 +43,7 @@ namespace xlog
     {
         loggers.insert({name, this});
         ::std::fstream file(path, ::std::ios_base::app|::std::ios_base::out);
-        if (!file) throw err::FileCannotBeOpened();
+        if (!file) throw err::FileCannotBeOpened(path.filename().string());
         register_buffer(file.rdbuf());
         open_fpaths.push_back(path);
     }
@@ -62,7 +62,7 @@ namespace xlog
         for (fs::path path : paths)
         {
             ::std::fstream file(path, ::std::ios_base::app|::std::ios_base::out);
-            if (!file) throw err::FileCannotBeOpened();
+            if (!file) throw err::FileCannotBeOpened(path.filename().string());
             register_buffer(file.rdbuf());
             open_fpaths.push_back(path);
         }
@@ -76,7 +76,7 @@ namespace xlog
         {
             if (log_exts.count(path.extension().string()) == 0) continue;
             ::std::fstream file(path, ::std::ios_base::app|::std::ios_base::out);
-            if (!file) throw err::FileCannotBeOpened();
+            if (!file) throw err::FileCannotBeOpened(path.filename().string());
             register_buffer(file.rdbuf());
             open_fpaths.push_back(path);
         }
@@ -104,14 +104,14 @@ namespace xlog
     {
         if (handlers.count(lvl) == 0)
         {
-            throw err::NoViableHandler();
+            throw err::NoViableHandler(std::to_string(lvl));
         }
         return handlers[lvl];
     }
 
     void Logger::add_handler(Handler h)
     {
-        handlers[h.min].push_back(h);
+        handlers[h.get_lvl()].push_back(h);
     }
 
     void Logger::set_termination_stream(buffer_t buf)
@@ -135,14 +135,14 @@ namespace xlog
     {
         if (ext[0] != '.')
         {
-            ext.insert(0, 1, ".");
+            ext.insert(0, 1, '.');
         }
         log_exts.insert(ext);
     }
 
     void Logger::exc_log(const ::std::string& msg, const int& lvl, FormatInfo& info)
     {
-        ::std::lock_gaurd lock(log_mtx);
+        lock_gaurd_t lock(log_mtx);
 
         info.msg = msg;
         info.lgr_name = name;
@@ -162,7 +162,10 @@ namespace xlog
 
     void Logger::log(const ::std::string& msg, const int& lvl, FormatInfo info)
     {
-        ::std::jthread thread(exc_log, msg, lvl, info);
+        thread_t thread(&exc_log, msg, lvl, info);
+#if __cplusplus <= 202002L // c++20 or newer
+        thread.detach();
+#endif
     }
 
     void Logger::log_all(::std::string msg, const int& lvl, FormatInfo info)
