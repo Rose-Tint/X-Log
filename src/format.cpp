@@ -4,19 +4,31 @@ using std::to_string;
 
 namespace xlog
 {
-    const ::std::string Format::def_time_fmt = "Y/M/D H:m:S:s";
-
-    const ::std::unordered_map<::std::string, var_fmt_f> Format::def_fmt_args =
+    const ::std::unordered_map<::std::string, var_fmt_f> Format::def_fmt_args
     {
-        { "time", &Format::get_ftime },
+        { "time", &Format::get_time },
         { "msg" , [](const Format&, const FormatInfo& info){ return info.msg; } },
         { "lvl" , [](const Format&, const FormatInfo& info){ return to_string(info.lvl); } },
         { "file", [](const Format&, const FormatInfo& info){ return info.file; } },
-        { "line", [](const Format&, const FormatInfo& info){ return info.line; } },
-        { "lgr" , [](const Format&, const FormatInfo& info){ return info.lgr_name; } }
+        { "line", [](const Format&, const FormatInfo& info){ return to_string(info.line); } },
+        { "lgr" , [](const Format&, const FormatInfo& info){ return info.lgr_name; } },
     };
 
-    ::std::string Format::get_ftime(const Format& fmt, const FormatInfo&)
+    Format::Format(const Format& other)
+    {
+        set_fmt(other.fmt);
+        set_time_fmt(other.time_fmt);
+    }
+
+    Format& Format::operator=(const Format& other)
+    {
+        if (this == &other) return *this;
+        set_fmt(other.fmt);
+        set_time_fmt(other.time_fmt);
+        return *this;
+    }
+
+    ::std::string Format::get_time(const Format& fmt, const FormatInfo&)
     {
         ::std::string time_s = fmt.time_fmt;
         ::std::time_t t = ::std::time(0);
@@ -36,7 +48,7 @@ namespace xlog
         return time_s;
     }
 
-    ::std::string Format::operator()(const FormatInfo& info)
+    ::std::string Format::operator()(const FormatInfo& info) const
     {
         ::std::string new_msg = info.msg, curr_var = "";
         char curr = 0, last_char = 0, scd_last = 0;
@@ -45,7 +57,7 @@ namespace xlog
         ::std::unordered_map<std::string, std::string> fmt_args = info.args;
         for (auto pair : def_fmt_args)
         {
-            fmt_args.insert({ pair.first, pair.second(*this, info) })
+            fmt_args.insert({ pair.first, pair.second(*this, info) });
         }
 
         for (int i = 0; i < info.msg.size(); curr = info.msg[++i])
@@ -56,7 +68,7 @@ namespace xlog
                 {
                     if (fmt_args.count(curr_var) == 0)
                     {
-                        throw err::FormatArgNotFound();
+                        throw err::FormatArgNotFound(curr_var);
                     }
                     new_msg.replace(r_start, r_size, fmt_args[curr_var]);
                     nmsg_i += r_size - 1;
@@ -65,7 +77,7 @@ namespace xlog
                 }
                 else if (curr == ' ' || curr == '\t' || curr == '\n')
                 {
-                    throw err::InvalidArgName();
+                    throw err::InvalidArgName(curr_var);
                 }
                 else
                 {

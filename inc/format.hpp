@@ -7,6 +7,7 @@
 
 namespace xlog
 {
+    class Format;
     struct FormatInfo
     {
         ::std::string file = "";
@@ -21,19 +22,25 @@ namespace xlog
 
     class Format
     {
-        const static ::std::string def_time_fmt;
+        static inline const ::std::string def_time_fmt = "Y/M/D H:m:S:s";
             // year/month/day hour/minute/second/millisecond
-        const ::std::string time_fmt;
-        const ::std::string fmt;
-        const static ::std::unordered_map<std::string, std::string> def_fmt_args;
-        static ::std::string get_ftime(const Format&, FormatInfo);
+        ::std::string time_fmt;
+        ::std::string fmt;
+        static const ::std::unordered_map<::std::string, var_fmt_f> def_fmt_args;
+        static ::std::string get_time(const Format&, const FormatInfo&);
 
       public:
-        Format(const Format&) = default;
         explicit Format(::std::string format, ::std::string tfmt = def_time_fmt)
             : fmt(format), time_fmt(tfmt) { }
 
-        ::std::string operator()(FormatInfo) const;
+        Format(const Format&);
+        Format& operator=(const Format&);
+
+        ::std::string operator()(const FormatInfo&) const;
+
+        void set_fmt(const ::std::string& format) { fmt = format; }
+        void set_time_fmt(const ::std::string& tfmt) { time_fmt = tfmt; }
+
         static void add_var(::std::string, var_fmt_f);
     };
 }
