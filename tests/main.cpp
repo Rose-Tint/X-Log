@@ -11,7 +11,7 @@ int main()
     xtst::TestBase::print_stack(std::ctime(&t));
     xtst::TestBase::inc_idt();
 
-    FormatTests fmt_tests = FormatTests();
+    ADD_TEST_INST(Format)
 
     xtst::TestBase::run_tests();
 
