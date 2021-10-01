@@ -4,4 +4,4 @@
 !.gitignore
 !.gitmodules
 
-/build/
+/build*
