@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+set_and_check(X-Log_INCLUDE_DIR "@PACKAGE_X-Log_INC_DIR@")
+set_and_check(X-Log_SOURCE_DIR "@PACKAGE_X-Log_SRC_DIR@")
+
+include("${X-Log_TARGETS_FILE}")
+
+check_required_components(X-Log)
