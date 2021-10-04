@@ -1,9 +1,6 @@
 #ifndef X_LOG_STL_INCLUDES
 #define X_LOG_STL_INCLUDES
 
-#ifndef X_LOG_CMAKE_DEFS
-#error "X-Log missing macro definitions from cmake: please make sure to build using cmake"
-
 #include <version>
 #include <string>
 #include <exception>

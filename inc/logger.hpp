@@ -12,7 +12,7 @@ namespace xlog
 {
     class Logger final
     {
-        friend Logger& get_logger(std::string);
+        friend Logger& get_logger(const std::string&);
 
         static inline std::unordered_map<std::string&, Logger*> loggers = { };
         static inline LogStream termination_stream = LogStream {{std::cout.rdbuf()}};
