@@ -140,37 +140,28 @@ namespace xlog
         log_exts.insert(ext);
     }
 
-    void Logger::exc_log(const std::string& msg, const int& lvl, FormatInfo& info)
+    void Logger::log(const std::string& msg, const int& lvl, Record& rcd)
     {
         lock_gaurd_t lock(log_mtx);
 
         info.msg = msg;
         info.lgr_name = name;
         info.lvl = lvl;
+
+        fmt.in_place(rcd);
+
         const std::vector<Handler>& handlers = get_handlers(lvl);
-        for (const Handler& handle : handlers)
+        for (const Handler& handler : handlers)
         {
-            // if handle's filter returns false, return
-            if (!handle(info))
-            {
-                return;
-            }
+            handler.handle(rcd);
         }
-
-        lstream.write(fmt(info));
     }
 
-    void Logger::log(const std::string& msg, const int& lvl, FormatInfo info)
-    {
-        thread_t thread(&exc_log, msg, lvl, info);
-        thread.detach();
-    }
-
-    void Logger::log_all(std::string msg, const int& lvl, FormatInfo info)
+    void Logger::log_all(std::string msg, const int& lvl, Record rcd)
     {
         for (auto pair : loggers)
         {
-            pair.second->log(msg, lvl, info);
+            pair.second->log(msg, lvl, rcd);
         }
     }
 }

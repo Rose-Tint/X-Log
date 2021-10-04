@@ -4,14 +4,14 @@ using std::to_string;
 
 namespace xlog
 {
-    const ::std::unordered_map<::std::string, var_fmt_f> Format::def_fmt_args
+    const std::unordered_map<std::string, var_fmt_f> Format::def_fmt_args
     {
         { "time", &Format::get_time },
-        { "msg" , [](const Format&, const FormatInfo& info){ return info.msg; } },
-        { "lvl" , [](const Format&, const FormatInfo& info){ return to_string(info.lvl); } },
-        { "file", [](const Format&, const FormatInfo& info){ return info.file; } },
-        { "line", [](const Format&, const FormatInfo& info){ return to_string(info.line); } },
-        { "lgr" , [](const Format&, const FormatInfo& info){ return info.lgr_name; } },
+        { "msg" , [](const Format&, const Record& rec){ return rec.msg; } },
+        { "lvl" , [](const Format&, const Record& rec){ return to_string(rec.lvl); } },
+        { "file", [](const Format&, const Record& rec){ return rec.file; } },
+        { "line", [](const Format&, const Record& rec){ return to_string(rec.line); } },
+        { "lgr" , [](const Format&, const Record& rec){ return rec.lgr_name; } },
     };
 
     Format::Format(const Format& other)
@@ -28,13 +28,13 @@ namespace xlog
         return *this;
     }
 
-    ::std::string Format::get_time(const Format& fmt, const FormatInfo&)
+    std::string Format::get_time(const Format& fmt, const Record&)
     {
-        ::std::string time_s = fmt.time_fmt;
-        ::std::time_t t = ::std::time(0);
-        ::std::tm tm = *::std::gmtime(&t);
-        ::std::timespec ts;
-        ::std::timespec_get(&ts, TIME_UTC);
+        std::string time_s = fmt.time_fmt;
+        std::time_t t = std::time(0);
+        std::tm tm = *std::gmtime(&t);
+        std::timespec ts;
+        std::timespec_get(&ts, TIME_UTC);
         long int ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000;
 
         time_s.replace(time_s.find('Y'), 4, to_string(tm.tm_year));
@@ -48,19 +48,19 @@ namespace xlog
         return time_s;
     }
 
-    ::std::string Format::operator()(const FormatInfo& info) const
+    std::string Format::operator()(const Record& rec) const
     {
-        ::std::string new_msg = info.msg, curr_var = "";
+        std::string new_msg = rec.msg, curr_var = "";
         char curr = 0, last_char = 0, scd_last = 0;
         bool read = false;
         int nmsg_i = 0, r_start = 0, r_size = 0;
-        ::std::unordered_map<std::string, std::string> fmt_args = info.args;
+        std::unordered_map<std::string, std::string> fmt_args = rec.args;
         for (auto pair : def_fmt_args)
         {
-            fmt_args.insert({ pair.first, pair.second(*this, info) });
+            fmt_args.insert({ pair.first, pair.second(*this, rec) });
         }
 
-        for (int i = 0; i < info.msg.size(); curr = info.msg[++i])
+        for (int i = 0; i < rec.msg.size(); curr = rec.msg[++i])
         {
             if (read)
             {

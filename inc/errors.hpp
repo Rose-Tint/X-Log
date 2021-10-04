@@ -1,7 +1,7 @@
 #ifndef X_LOG_ERRORS_HPP
 #define X_LOG_ERRORS_HPP
 
-#include "stl_includes.hpp"
+#include "fwd_declares.hpp"
 
 
 namespace xlog

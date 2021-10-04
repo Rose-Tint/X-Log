@@ -38,13 +38,7 @@ set(${PROJECT_NAME}_SOURCES
 )
 
 
-if(NOT RUN_${PROJECT_NAME}_TESTS)
-    message(STATUS "${PROJECT_NAME}: RUN_${PROJECT_NAME}_TESTS not specified; defaulting to 1")
-    set(RUN_X_LOG_TESTS True)
-endif()
-
-
-if(${RUN_X_LOG_TESTS})
+if(BUILD_TESTING)
     message(STATUS "${PROJECT_NAME}: Building Tests")
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/X-Test)
