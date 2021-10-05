@@ -60,7 +60,8 @@ namespace xlog
     typedef unsigned int uint;
     typedef unsigned char uchar;
 
-#if CMAKE_CPP_STD > 20
+    // if there is c++20 support, use jthread because jthread is safer
+#if __cplusplus > 201703L
     typedef std::jthread thread_t;
 #else
     typedef std::thread thread_t;

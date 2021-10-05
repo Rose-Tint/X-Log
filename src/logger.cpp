@@ -3,20 +3,9 @@
 
 namespace xlog
 {
-    std::unordered_map<std::string&, Logger*> Logger::loggers = { };
-
     std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" };
 
-    void Logger::LogStream::write(const std::string& str)
-    {
-        for (buffer_t buf : buffers)
-        {
-            std::ostream stream = std::ostream(buf);
-            stream << str;
-        }
-    }
-
-    Logger& get_logger(std::string name)
+    Logger& get_logger(const std::string& name)
     {
         if (Logger::loggers.count(name) == 0)
         {
@@ -25,98 +14,40 @@ namespace xlog
         return *(Logger::loggers[name]);
     }
 
-    Logger::Logger(std::string _name, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
+    Logger::Logger(const std::string& nm)
+        : name(nm)
     {
         loggers.insert({name, this});
     }
 
-    Logger::Logger(std::string _name, buffer_t buf, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
+    std::vector<Handler*> Logger::get_handlers(const uchar& lvl)
     {
-        loggers.insert({name, this});
-        register_buffer(buf);
-    }
-
-    Logger::Logger(std::string _name, fs::path path, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
-    {
-        loggers.insert({name, this});
-        std::fstream file(path, std::ios_base::app|std::ios_base::out);
-        if (!file) throw err::FileCannotBeOpened(path.filename().string());
-        register_buffer(file.rdbuf());
-        open_fpaths.push_back(path);
-    }
-
-    Logger::Logger(std::string _name, ilist<buffer_t> bufs, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
-    {
-        loggers.insert({name, this});
-        for (auto buf : bufs) register_buffer(buf);
-    }
-
-    Logger::Logger(std::string _name, ilist<fs::path> paths, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
-    {
-        loggers.insert({name, this});
-        for (fs::path path : paths)
+        std::vector<Handler*> valids;
+        for (Handler& handler : handlers)
         {
-            std::fstream file(path, std::ios_base::app|std::ios_base::out);
-            if (!file) throw err::FileCannotBeOpened(path.filename().string());
-            register_buffer(file.rdbuf());
-            open_fpaths.push_back(path);
-        }
-    }
-
-    Logger::Logger(std::string _name, fs::recursive_directory_iterator dir, Format format)
-        : fmt(std::move(format)), name(std::move(_name))
-    {
-        loggers.insert({name, this});;
-        for (fs::path path : dir)
-        {
-            if (log_exts.count(path.extension().string()) == 0) continue;
-            std::fstream file(path, std::ios_base::app|std::ios_base::out);
-            if (!file) throw err::FileCannotBeOpened(path.filename().string());
-            register_buffer(file.rdbuf());
-            open_fpaths.push_back(path);
-        }
-    }
-
-    Logger::LogStream::~LogStream()
-    {
-        std::filebuf* fbuf;
-        for (buffer_t buf : buffers)
-        {
-            fbuf = dynamic_cast<std::filebuf*>(buf);
-            if (fbuf)
+            if (handler.get_min() < lvl && lvl < handler.get_max())
             {
-                if (fbuf->is_open()) fbuf->close();
+                valids.push_back(&handler);
             }
         }
+        return valids;
     }
 
-    void Logger::register_buffer(std::streambuf* buff)
+    Logger& Logger::add_handler(const Handler& handler)
     {
-        lstream.buffers.push_back(buff);
+        handlers.push_back(handler);
+        return *this;
     }
 
-    const std::vector<Handler>& Logger::get_handlers(const int& lvl)
+    Logger& Logger::add_handlers(ilist<Handler&> handlers)
     {
-        if (handlers.count(lvl) == 0)
-        {
-            throw err::NoViableHandler(std::to_string(lvl));
-        }
-        return handlers[lvl];
+        for (const Handler& handler : handlers) add_handler(handler);
     }
 
-    void Logger::add_handler(Handler h)
-    {
-        handlers[h.get_lvl()].push_back(h);
-    }
-
-    void Logger::set_termination_stream(buffer_t buf)
+    Logger& Logger::set_termination_stream(buffer_t buf)
     {
         termination_stream = {{ buf }};
+        return *this;
     }
 
     void Logger::set_termination_msg(const std::string& msg)
@@ -131,37 +62,29 @@ namespace xlog
         old_h();
     }
 
-    void Logger::add_ext(std::string ext)
+    void Logger::add_ext(const std::string& ext)
     {
-        if (ext[0] != '.')
-        {
-            ext.insert(0, 1, '.');
-        }
+        if (ext[0] != '.') ext.insert(0, 1, ".");
         log_exts.insert(ext);
     }
 
-    void Logger::log(const std::string& msg, const int& lvl, Record& rcd)
+    void Logger::add_exts(ilist<std::string&> exts)
     {
-        lock_gaurd_t lock(log_mtx);
+        for (const std::string& ext : exts) add_ext(ext);
+    }
 
-        info.msg = msg;
-        info.lgr_name = name;
-        info.lvl = lvl;
-
-        fmt.in_place(rcd);
-
-        const std::vector<Handler>& handlers = get_handlers(lvl);
-        for (const Handler& handler : handlers)
+    void Logger::log(const std::string& msg, const uchar& lvl, Record rcd)
+    {
+        rcd.init_rest(msg, lvl, name);
+        auto& valid_handlers = get_handlers(lvl);
+        for (Handler* h_ptr : valid_handlers)
         {
-            handler.handle(rcd);
+            h_ptr->handle(rcd);
         }
     }
 
-    void Logger::log_all(std::string msg, const int& lvl, Record rcd)
+    void Logger::log_all(const std::string& msg, const uchar& lvl, Record rcd)
     {
-        for (auto pair : loggers)
-        {
-            pair.second->log(msg, lvl, rcd);
-        }
+        for (auto pair : loggers) pair.second->log(msg, lvl, rcd);
     }
 }

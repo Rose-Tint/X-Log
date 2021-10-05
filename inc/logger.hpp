@@ -14,42 +14,38 @@ namespace xlog
     {
         friend Logger& get_logger(const std::string&);
 
-        static inline std::unordered_map<std::string&, Logger*> loggers = { };
-        static inline LogStream termination_stream = LogStream {{std::cout.rdbuf()}};
-        static inline std::string termination_msg = "Program Terminated\n";
-        static inline Format def_fmt = Format("${date} | ${file} - line ${line}:\n\t${msg}");
+        static std::unordered_map<std::string&, Logger*> loggers;
         static std::unordered_set<std::string> log_exts;
-        static void termination_h();
+        static inline Format def_fmt = Format("${date} | ${file} - line ${line}:\n -- ${msg}");
+        static inline LogStream termination_stream = LogStream({std::cout.rdbuf()});
+        static inline std::string termination_msg = "Program Terminated";
+        static void handle_termination();
 
         std::string name;
-        LogStream lstream;
         Format fmt;
-        std::unordered_map<int, std::vector<Handler>> handlers;
-        std::vector<fs::path> open_fpaths;
+        std::vector<Handler> handlers;
 
-        const std::vector<Handler>& get_handlers(const int&);
-        void exc_log(Record&);
-
+        std::vector<Handler*> get_handlers(const uchar&);
       public:
         Logger() = delete;
-        explicit Logger(std::string, Format = def_fmt);
+        explicit Logger(const std::string&);
 
         Logger(const Logger&) = delete;
         Logger(Logger&&) = delete;
         Logger& operator=(const Logger&) = delete;
         Logger& operator=(Logger&&) = delete;
 
-        ~Logger();
-
-        static void log_all(std::string, const int&, Record);
-        static void add_ext(std::string);
+        static void log_all(const std::string&, const uchar&, Record);
+        static void add_ext(const std::string&);
+        static void add_exts(ilist<std::string>);
         static void set_termination_stream(buffer_t);
         static void set_termination_msg(const std::string&);
 
-        void rename(std::string rn) { name = std::move(rn); }
-        void add_handler(Handler);
-        void set_format(Format format = def_fmt) { fmt = format; }
-        void log(const std::string&, const int&, Record);
+        void rename(std::string new_name) { name = std::move(new_name); };
+        Logger& add_handler(const Handler&);
+        Logger& add_handler(ilist<Handler>);
+        Logger& set_format(Format format) { fmt = format; };
+        void log(const std::string&, const uchar&, Record);
     };
 }
 #endif

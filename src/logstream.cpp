@@ -3,12 +3,20 @@
 
 namespace xlog
 {
+    LogStream::LogStream(ilist<buffer_t> bufs)
+        : buffers(bufs.begin(), bufs.end()) { }
+
+    void LogStream::add_buffer(buffer_t buf)
+    {
+        buffers.push_back(buf);
+    }
+
     void LogStream::write(const std::string& str)
     {
         io_lock.lock();
-        for (buffer_t buffer : buffers)
+        for (buffer_t buf : buffers)
         {
-            std::ostream(buffer) << str;
+            std::ostream(buf) << str;
         }
         io_lock.unlock();
     }

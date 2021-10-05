@@ -2,57 +2,35 @@
 #define X_LOG_HANDLER_HPP
 
 #include "fwd_declares.hpp"
+#include "filter.hpp"
+#include "logstream.hpp"
 #include "record.hpp"
 
 
 namespace xlog
 {
-    typedef void (*PreFilter)(Record&);
-    typedef bool (*Filter)(const Record&);
-    typedef void (*PostFilter)(Record&);
-
     class Handler final
     {
-        class LogStream
-        {
-            static std::mutex io_mtx;
-            void aquire() { io_mtx.lock(); }
-            void release() { io_mtx.unlock(); }
-            void write(const std::string&);
-            std::vector<buffer_t> buffers;
-          public:
-            void add_buffer(buffer_t);
-            void send(const std::string&);
-            ~LogStream();
-        };
-
         LogStream lstream;
-        PreFilter pre;
         Filter filter;
-        PostFilter post;
-        uint level;
-
-        static bool def_filter(const Record&) { return true; }
-
-        void init(uint, PreFilter, Filter, PostFilter);
+        uchar min;
+        uchar max;
 
       public:
-        explicit Handler(uint, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
-        explicit Handler(uint, ilist<buffer_t>, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
-        explicit Handler(uint, ilist<fs::path>, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
+        explicit Handler(uchar);
 
-        void set_prefilter(PreFilter pref) { pre = pref; }
-        void set_filter(Filter filt) { filter = filt; }
-        void set_postfilter(PostFilter postf) { post = postf; }
+        const uchar get_min() const { return min; }
+        const uchar& get_max() const { return max; }
 
-        void rm_prefilter() { pre = nullptr; }
-        void rm_filter() { filter = def_filter; }
-        void rm_postfilter() { post = nullptr; }
-
-        const uint& get_level() const { return level; }
-
+        // returns `*this` so that users can do things like
+        // `lgr.add_handler(hdlr.set_filter(std::cout.rdbuf*()));`
+        // which essentially allows for keword arguments
+        Handler& set_max(uchar);
+        Handler& set_filter(const Filter&);
         Handler& add_buffer(buffer_t);
-        Handler& add_file(fs::path)
+        Handler& add_file(const fs::path&);
+        Handler& add_buffers(ilist<buffer_t>);
+        Handler& add_files(ilist<fs::path>);
 
         bool handle(Record&) const;
     };

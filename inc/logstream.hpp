@@ -11,13 +11,15 @@ namespace xlog
     {
         static std::mutex io_mtx;
         ulock_t io_lock = ulock_t(io_mtx, std::defer_lock);
-        static void write(buffer_t, const std::string&);
+        virtual void write(buffer_t, const std::string&);
         std::vector<buffer_t> buffers;
 
       public:
-        explicit LogStream() = default;
+        LogStream() = default;
+        explicit LogStream(std::ilist<buffer_t>);
         void add_buffer(buffer_t);
         void send(const std::string&);
+        virtual ~LogStream() = default;
     };
 }
 
