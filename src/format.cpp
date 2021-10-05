@@ -4,37 +4,25 @@ using std::to_string;
 
 namespace xlog
 {
-    const ::std::unordered_map<::std::string, var_fmt_f> Format::def_fmt_args
+    std::string DateTimeFormat::get_dtime() const
     {
-        { "time", &Format::get_time },
-        { "msg" , [](const Format&, const FormatInfo& info){ return info.msg; } },
-        { "lvl" , [](const Format&, const FormatInfo& info){ return to_string(info.lvl); } },
-        { "file", [](const Format&, const FormatInfo& info){ return info.file; } },
-        { "line", [](const Format&, const FormatInfo& info){ return to_string(info.line); } },
-        { "lgr" , [](const Format&, const FormatInfo& info){ return info.lgr_name; } },
-    };
-
-    Format::Format(const Format& other)
-    {
-        set_fmt(other.fmt);
-        set_time_fmt(other.time_fmt);
+        if (date_time.empty())
+        {
+            return (date+" "+time);
+        }
+        else
+        {
+            return date_time;
+        }
     }
 
-    Format& Format::operator=(const Format& other)
+    std::string Format::get_time(const Format& fmt, const Record&)
     {
-        if (this == &other) return *this;
-        set_fmt(other.fmt);
-        set_time_fmt(other.time_fmt);
-        return *this;
-    }
-
-    ::std::string Format::get_time(const Format& fmt, const FormatInfo&)
-    {
-        ::std::string time_s = fmt.time_fmt;
-        ::std::time_t t = ::std::time(0);
-        ::std::tm tm = *::std::gmtime(&t);
-        ::std::timespec ts;
-        ::std::timespec_get(&ts, TIME_UTC);
+        std::string time_s = fmt.time_fmt;
+        std::time_t t = std::time(0);
+        std::tm tm = *std::gmtime(&t);
+        std::timespec ts;
+        std::timespec_get(&ts, TIME_UTC);
         long int ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000;
 
         time_s.replace(time_s.find('Y'), 4, to_string(tm.tm_year));
@@ -48,30 +36,36 @@ namespace xlog
         return time_s;
     }
 
-    ::std::string Format::operator()(const FormatInfo& info) const
+    str_umap Format::get_args(const Record& rcd) const
     {
-        ::std::string new_msg = info.msg, curr_var = "";
+        str_umap new_args = rcd.get_dict();
+        new_args.merge({
+            { "time" , dt_fmt.time        },
+            { "date" , dt_fmt.date        },
+            { "dtime", dt_fmt.get_dtime() }
+        });
+        return new_args;
+    }
+
+    std::string Format::operator()(const Record& rec) const
+    {
+        std::string new_msg, curr_var;
         char curr = 0, last_char = 0, scd_last = 0;
         bool read = false;
-        int nmsg_i = 0, r_start = 0, r_size = 0;
-        ::std::unordered_map<std::string, std::string> fmt_args = info.args;
-        for (auto pair : def_fmt_args)
-        {
-            fmt_args.insert({ pair.first, pair.second(*this, info) });
-        }
+        int rep_start = 0, rep_size = 0;
+        str_umap args = get_args(rcd);
 
-        for (int i = 0; i < info.msg.size(); curr = info.msg[++i])
+        for (int i = 0; i < rec.msg.size(); curr = rec.msg[++i])
         {
             if (read)
             {
                 if (curr == '}' && last_char != '\\')
                 {
-                    if (fmt_args.count(curr_var) == 0)
+                    if (rec.args.count(curr_var) == 0)
                     {
                         throw err::FormatArgNotFound(curr_var);
                     }
-                    new_msg.replace(r_start, r_size, fmt_args[curr_var]);
-                    nmsg_i += r_size - 1;
+                    new_msg.replace(rep_start, rep_size, args[curr_var]);
                     read = false;
                     curr_var.clear();
                 }
@@ -82,17 +76,20 @@ namespace xlog
                 else
                 {
                     curr_var += curr;
-                    r_size += 1;
+                    rep_size += 1;
                 }
             }
             else if (curr == '{' && last_char == '$' && scd_last != '\\')
             {
                 read = true;
-                r_start = nmsg_i - 1;
+                rep_start = nmsg_i - 1;
+            }
+            else
+            {
+                new_msg += curr;
             }
             scd_last = last_char;
             last_char = curr;
-            nmsg_i += 1;
         }
         return new_msg;
     }

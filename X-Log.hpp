@@ -1,7 +1,17 @@
 #ifndef X_LOG_HPP
 #define X_LOG_HPP
 
+#ifndef X_LOG_CMAKE_DEFS
+#error "X-Log missing macro definitions from cmake: please make sure to build using cmake"
+#endif
+
+#include "fwd_declares.hpp"
+#include "errors.hpp"
+#include "format.hpp"
+#include "handler.hpp"
 #include "logger.hpp"
+#include "logstream.hpp"
+#include "record.hpp"
 
 #ifndef X_LOG_NO_PREDEF_LOGGER
 #include <iostream>

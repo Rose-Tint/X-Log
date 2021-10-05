@@ -1,40 +1,38 @@
 #ifndef X_LOG_HANDLER_HPP
 #define X_LOG_HANDLER_HPP
 
-#include <string>
-
-#include "format.hpp"
+#include "fwd_declares.hpp"
+#include "filter.hpp"
+#include "logstream.hpp"
+#include "record.hpp"
 
 
 namespace xlog
 {
-    typedef void (*PreFilter)(FormatInfo&);
-    typedef bool (*Filter)(const FormatInfo&);
-    typedef void (*PostFilter)(FormatInfo&);
-
-    class Handler
+    class Handler final
     {
-        PreFilter pre;
+        LogStream lstream;
         Filter filter;
-        PostFilter post;
-        unsigned int lvl;
+        uchar min;
+        uchar max;
 
-        static bool def_filter(const FormatInfo&) { return true; }
+      public:
+        explicit Handler(uchar);
 
-        public:
-        explicit Handler(unsigned int, PreFilter = nullptr, Filter = def_filter, PostFilter = nullptr);
+        const uchar get_min() const { return min; }
+        const uchar& get_max() const { return max; }
 
-        void set_prefilter(PreFilter pref) { pre = pref; }
-        void set_filter(Filter filt) { filter = filt; }
-        void set_postfilter(PostFilter postf) { post = postf; }
+        // returns `*this` so that users can do things like
+        // `lgr.add_handler(hdlr.set_filter(std::cout.rdbuf*()));`
+        // which essentially allows for keword arguments
+        Handler& set_max(uchar);
+        Handler& set_filter(const Filter&);
+        Handler& add_buffer(buffer_t);
+        Handler& add_file(const fs::path&);
+        Handler& add_buffers(ilist<buffer_t>);
+        Handler& add_files(ilist<fs::path>);
 
-        void rm_prefilter() { pre = nullptr; }
-        void rm_filter() { filter = def_filter; }
-        void rm_postfilter() { post = nullptr; }
-
-        const unsigned int& get_lvl() const { return lvl; }
-
-        bool operator()(FormatInfo&) const;
+        bool handle(Record&) const;
     };
 }
 
