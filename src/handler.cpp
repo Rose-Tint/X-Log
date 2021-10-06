@@ -3,8 +3,21 @@
 
 namespace xlog
 {
-    Handler::Handler(uchar minimum)
-        : min(minimum) {}
+    Handler& get_handler(const std::string& name)
+    {
+        if (Handler::handlers.count(name) == 0)
+        {
+            Handler new_lgr = Handler(name);
+            return new_lgr;
+        }
+        return *(Handler::handlers[name]);
+    }
+
+    Handler::Handler(const std::string& _name, uchar minimum = 0)
+        : name(_name), min(minimum)
+    {
+        handlers.insert({ name, this });
+    }
 
     void Handler::handle(const Record& rcd) const
     {
