@@ -3,8 +3,6 @@
 
 namespace xlog
 {
-    std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" };
-
     Logger& get_logger(const std::string& name)
     {
         if (Logger::loggers.count(name) == 0)
@@ -13,6 +11,8 @@ namespace xlog
         }
         return *(Logger::loggers[name]);
     }
+
+    std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" };
 
     Logger::Logger(const std::string& nm)
         : name(nm)

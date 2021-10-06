@@ -23,8 +23,7 @@ namespace xlog
         const uchar& get_max() const { return max; }
 
         // returns `*this` so that users can do things like
-        // `lgr.add_handler(hdlr.set_filter(std::cout.rdbuf*()));`
-        // which essentially allows for keword arguments
+        // `Handler hdler = Handler(0).add_buffer(std::cout.rdbuf());`
         Handler& set_max(uchar);
         Handler& set_filter(const Filter&);
         Handler& add_buffer(buffer_t);
