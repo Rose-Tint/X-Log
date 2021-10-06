@@ -24,7 +24,7 @@ namespace xlog
         }
         if (Format::formats.count(name) == 0)
         {
-            Format new_fmt = Format(name);
+            // throw...
         }
         return *(Format::formats[name]);
     }

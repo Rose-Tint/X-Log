@@ -1,14 +1,6 @@
 #include "logstream.hpp"
 
 
-// LEFT OFF AT
-// figuring out how to make the destructor safe
-// current idea: launch a thread in the ctr that locks a mutex
-//     and unlocks it when all child threads are finished
-//     and the destructor will be waiting on that mutex so that
-//     when all child threads die, the destructor can continue.
-
-
 namespace xlog
 {
     LogStream::LogStream(ilist<buffer_t> bufs)

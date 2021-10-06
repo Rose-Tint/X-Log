@@ -36,7 +36,7 @@ namespace xlog
         explicit Format(const std::string&, const std::string&, const std::string& = def_time_fmt)
 
         std::string operator()(const Record&) const;
-        void rename(const std::string _name) { name = _name; }
+        const std::string& get_name() const { return name; }
 
         void set_fmt(const std::string& format) { fmt = format; };
         void set_time_fmt(const std::string& tfmt) { time_fmt = tfmt; };

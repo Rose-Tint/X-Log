@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/json.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -107,7 +108,7 @@ namespace xlog
     template<typename T>
     using str_umap = std::unordered_map<std::string, T>;
     template<typename T>
-    using lookup_map = std::unordered_map<std::string&, T*>
+    using lookup_map = std::unordered_map<std::string, T*>
 
 
     class Logger;
