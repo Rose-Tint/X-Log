@@ -23,6 +23,7 @@ namespace xlog
         static inline const std::string def_time_fmt = "Y/M/D H:m:S:s";
             // year/month/day hour/minute/second/millisecond
         static lookup_map<Format> formats;
+        std::string name;
         DateTimeFormat dt_fmt;
         std::string fmt;
 
