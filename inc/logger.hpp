@@ -48,7 +48,7 @@ namespace xlog
         // returns `*this` so that users can do things like
         // `Logger lgr = Logger().add_handler(hdlr);`
         Logger& add_handler(const Handler&);
-        Logger& add_handler(ilist<Handler>);
+        Logger& add_handlers(ilist<Handler>);
         Logger& set_format(Format format) { fmt = format; };
     };
 
