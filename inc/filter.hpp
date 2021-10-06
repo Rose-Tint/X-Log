@@ -32,8 +32,8 @@ namespace xlog
         void rm_post() { post = nullptr; }
         void reset() { rm_pre(); reset_main(); rm_post(); }
 
-        void rename(const std::string& _name) { name = _name; }
         bool operator()(Record&) const;
+        const std::string& get_name() const { return name; }
     };
 
     Filter& get_filter(const std::string&);

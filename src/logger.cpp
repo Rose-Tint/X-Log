@@ -21,14 +21,15 @@ namespace xlog
     Logger::Logger(const std::string& nm)
         : name(nm)
     {
-        loggers.insert({name, this});
+        loggers.insert({ name, this });
     }
 
-    std::vector<Handler*> Logger::get_handlers(const uchar& lvl)
+    std::vector<Handler*> Logger::handlers(const uchar& lvl)
     {
         std::vector<Handler*> valids;
-        for (Handler& handler : handlers)
+        for (const std::string& hname : handlers)
         {
+            Handler& handler = xlog::get_handler(hname);
             if (handler.get_min() < lvl && lvl < handler.get_max())
             {
                 valids.push_back(&handler);
@@ -39,19 +40,26 @@ namespace xlog
 
     Logger& Logger::add_handler(const std::string& handler_name)
     {
-        handlers.push_back(xlog::get_handler(handler_name));
+        handler_names.push_back(handler_name);
         return *this;
     }
 
     Logger& Logger::add_handler(const Handler& handler)
     {
-        handlers.push_back(handler);
+        handler_names.push_back(handler.get_name());
         return *this;
     }
 
     Logger& Logger::add_handlers(ilist<Handler&> handlers)
     {
-        for (const Handler& handler : handlers) add_handler(handler);
+        for (const Handler& handler : handlers) add_handler(handler.get_name());
+        return *this;
+    }
+
+    Logger& Logger::add_handlers(ilist<std::string> handlers)
+    {
+        for (std::string hname : handlers) add_handler(hname);
+        return *this;
     }
 
     Logger& Logger::set_termination_stream(buffer_t buf)
@@ -86,7 +94,7 @@ namespace xlog
     void Logger::log(const std::string& msg, const uchar& lvl, Record rcd)
     {
         rcd.init_rest(msg, lvl, name);
-        auto& valid_handlers = get_handlers(lvl);
+        auto& valid_handlers = handlers(lvl);
         for (Handler* h_ptr : valid_handlers)
         {
             h_ptr->handle(rcd);

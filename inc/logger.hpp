@@ -2,7 +2,6 @@
 #define X_LOG_LOGGER_HPP
 
 #include "fwd_declares.hpp"
-#include "errors.hpp"
 #include "format.hpp"
 #include "record.hpp"
 #include "handler.hpp"
@@ -22,9 +21,9 @@ namespace xlog
         static void handle_termination();
 
         std::string name;
-        std::vector<Handler> handlers;
+        std::vector<std::string> handler_names;
 
-        std::vector<Handler*> get_handlers(const uchar&);
+        std::vector<Handler*> handlers(const uchar&);
 
       public:
         Logger() = delete;
@@ -42,13 +41,14 @@ namespace xlog
         static void set_termination_msg(const std::string&);
 
         void log(const std::string&, const uchar&, Record);
-        void rename(std::string new_name) { name = std::move(new_name); };
+        const std::string& get_name() const { return name; }
 
         // returns `*this` so that users can do things like
         // `Logger lgr = Logger().add_handler(hdlr);`
         Logger& add_handler(const std::string&);
         Logger& add_handler(const Handler&);
         Logger& add_handlers(ilist<Handler>);
+        Logger& add_handlers(ilist<std::string>);
     };
 
     Logger& get_logger(const std::string&);
