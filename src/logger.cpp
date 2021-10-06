@@ -12,7 +12,7 @@ namespace xlog
         return *(Logger::loggers[name]);
     }
 
-    std::unordered_set<std::string> Logger::log_exts = { ".log", ".xlog" };
+    str_set_t Logger::log_exts = { ".log", ".xlog" };
 
     Logger::Logger(const std::string& nm)
         : name(nm)

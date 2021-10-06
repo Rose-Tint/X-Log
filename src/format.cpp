@@ -16,9 +16,9 @@ namespace xlog
         }
     }
 
-    str_umap Format::get_args(const Record& rcd) const
+    Format::arg_map_t Format::get_args(const Record& rcd) const
     {
-        str_umap new_args = rcd.get_dict();
+        arg_map_t new_args = rcd.get_dict();
         new_args.merge({
             { "time" , dt_fmt.time        },
             { "date" , dt_fmt.date        },
@@ -33,7 +33,7 @@ namespace xlog
         char curr = 0, last_char = 0, scd_last = 0;
         bool read = false;
         int rep_start = 0, rep_size = 0;
-        str_umap args = get_args(rcd);
+        auto args = get_args(rcd);
 
         for (int i = 0; i < rec.msg.size(); curr = rec.msg[++i])
         {

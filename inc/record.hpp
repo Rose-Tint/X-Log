@@ -20,10 +20,11 @@ namespace xlog
         // set by ctr
         std::string file;
         uint line;
-        str_umap args;
+        arg_map_t args;
 
       public:
-        Record(const std::string& f, const uint& ln, const str_umap& map)
+        typedef str_umap<std::string> arg_map_t;
+        Record(const std::string& f, const uint& ln, const arg_map_t& map)
             : file(f), line(ln), args(map) { }
 
         Record(Record&&);
@@ -34,9 +35,9 @@ namespace xlog
         const uchar& get_lvl() const { return lvl; }
         const std::string& get_file() const { return file; }
         const uint& get_line() const { return line; }
-        const str_umap& get_args() const { return args; }
+        const arg_map_t& get_args() const { return args; }
 
-        str_umap get_dict() const;
+        arg_map_t get_dict() const;
     };
 }
 

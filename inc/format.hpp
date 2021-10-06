@@ -24,9 +24,10 @@ namespace xlog
         DateTimeFormat dt_fmt;
         std::string fmt;
 
-        str_umap get_args(const Record&) const;
+        arg_map_t get_args(const Record&) const;
 
       public:
+        typedef str_umap<std::string> arg_map_t;
         explicit Format(std::string format, std::string dtf = def_time_fmt)
             : fmt(format), dt_fmt(dtf) { }
 
@@ -36,4 +37,5 @@ namespace xlog
         void set_time_fmt(const std::string& tfmt) { time_fmt = tfmt; };
     };
 }
+
 #endif

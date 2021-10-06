@@ -14,8 +14,8 @@ namespace xlog
     {
         friend Logger& get_logger(const std::string&);
 
-        static std::unordered_map<std::string&, Logger*> loggers;
-        static std::unordered_set<std::string> log_exts;
+        static lookup_map<Logger*> loggers;
+        static str_set_t log_exts;
         static inline Format def_fmt = Format("${date} | ${file} - line ${line}:\n -- ${msg}");
         static inline LogStream termination_stream = LogStream({std::cout.rdbuf()});
         static inline std::string termination_msg = "Program Terminated";
