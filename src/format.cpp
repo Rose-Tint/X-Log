@@ -18,10 +18,13 @@ namespace xlog
 
     Format& get_format(const std::string& name)
     {
+        if (name == "")
+        {
+            return *(Format::formats["std"]);
+        }
         if (Format::formats.count(name) == 0)
         {
             Format new_fmt = Format(name);
-            return new_fmt;
         }
         return *(Format::formats[name]);
     }

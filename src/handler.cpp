@@ -5,10 +5,13 @@ namespace xlog
 {
     Handler& get_handler(const std::string& name)
     {
+        if (name == "")
+        {
+            return *(Handler::handlers["std"]);
+        }
         if (Handler::handlers.count(name) == 0)
         {
             Handler new_hdlr = Handler(name);
-            return new_hdlr;
         }
         return *(Handler::handlers[name]);
     }
@@ -28,6 +31,12 @@ namespace xlog
     Handler& Handler::set_max(uchar mx)
     {
         max = mx;
+        return *this;
+    }
+
+    Handler& Handler::set_filter(const std::string& filt_name)
+    {
+        filter = xlog::get_filter(filt_name);
         return *this;
     }
 

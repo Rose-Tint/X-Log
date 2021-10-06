@@ -5,6 +5,10 @@ namespace xlog
 {
     Logger& get_logger(const std::string& name)
     {
+        if (name == "")
+        {
+            return *(Logger::loggers["root"]);
+        }
         if (Logger::loggers.count(name) == 0)
         {
             Logger new_lgr = Logger(name);
@@ -31,6 +35,12 @@ namespace xlog
             }
         }
         return valids;
+    }
+
+    Logger& Logger::add_handler(const std::string& handler_name)
+    {
+        handlers.push_back(xlog::get_handler(handler_name));
+        return *this;
     }
 
     Logger& Logger::add_handler(const Handler& handler)

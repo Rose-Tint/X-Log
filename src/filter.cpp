@@ -3,25 +3,31 @@
 
 namespace xlog
 {
-    Filter::Filter()
+    Filter& get_filter(const std::string& name)
     {
-        rm_pre();
-        reset_main();
-        rm_post();
+        if (name == "")
+        {
+            return *(Filter::filters["std"]);
+        }
+        if (Filter::filters.count(name) == 0)
+        {
+            Filter new_filt = Filter(name);
+        }
+        return *(Filter::filters[name]);
     }
 
-    Filter::Filter(filter_f filt, pre_filter_f pref = nullptr, post_filter_f postf = nullptr)
+    Filter::Filter(const std::string& _name, filter_f filt, pre_filter_f pref, post_filter_f postf)
+        : name(_name), pre(pref), post(postf)
     {
+        filters.insert({ name, this });
         if (filt != nullptr)
         {
             main_ = filt;
         }
         else
         {
-            reset_main();
+            main_ = &def_filter;
         }
-        set_pre(pref);
-        set_post(postf);
     }
 
     bool operator()(Record& rcd) const

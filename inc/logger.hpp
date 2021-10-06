@@ -22,7 +22,6 @@ namespace xlog
         static void handle_termination();
 
         std::string name;
-        Format fmt;
         std::vector<Handler> handlers;
 
         std::vector<Handler*> get_handlers(const uchar&);
@@ -47,9 +46,9 @@ namespace xlog
 
         // returns `*this` so that users can do things like
         // `Logger lgr = Logger().add_handler(hdlr);`
+        Logger& add_handler(const std::string&);
         Logger& add_handler(const Handler&);
         Logger& add_handlers(ilist<Handler>);
-        Logger& set_format(Format format) { fmt = format; };
     };
 
     Logger& get_logger(const std::string&);

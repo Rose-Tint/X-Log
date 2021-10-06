@@ -12,6 +12,7 @@ namespace xlog
     class Handler final
     {
         friend Handler& get_handler(const std::string&);
+
         static lookup_map<Handler> handlers;
 
         std::string name;
@@ -29,6 +30,7 @@ namespace xlog
         // returns `*this` so that users can do things like
         // `Handler hdler = Handler(0).add_buffer(std::cout.rdbuf());`
         Handler& set_max(uchar);
+        Handler& set_filter(const std::string&);
         Handler& set_filter(const Filter&);
         Handler& add_buffer(buffer_t);
         Handler& add_file(const fs::path&);
@@ -38,6 +40,8 @@ namespace xlog
         void rename(const std::string& new_name) { name = new_name; }
         bool handle(Record&) const;
     };
+
+    Handler& get_handler(const std::string&);
 }
 
 #endif
