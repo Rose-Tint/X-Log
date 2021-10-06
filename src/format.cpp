@@ -16,26 +16,6 @@ namespace xlog
         }
     }
 
-    std::string Format::get_time(const Format& fmt, const Record&)
-    {
-        std::string time_s = fmt.time_fmt;
-        std::time_t t = std::time(0);
-        std::tm tm = *std::gmtime(&t);
-        std::timespec ts;
-        std::timespec_get(&ts, TIME_UTC);
-        long int ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000;
-
-        time_s.replace(time_s.find('Y'), 4, to_string(tm.tm_year));
-        time_s.replace(time_s.find('M'), 2, to_string(tm.tm_mon));
-        time_s.replace(time_s.find('D'), 2, to_string(tm.tm_mday));
-        time_s.replace(time_s.find('H'), 2, to_string(tm.tm_hour));
-        time_s.replace(time_s.find('m'), 2, to_string(tm.tm_min));
-        time_s.replace(time_s.find('S'), 2, to_string(tm.tm_sec));
-        time_s.replace(time_s.find('s'), 4, to_string(ms));
-
-        return time_s;
-    }
-
     str_umap Format::get_args(const Record& rcd) const
     {
         str_umap new_args = rcd.get_dict();

@@ -26,6 +26,7 @@ namespace xlog
         std::vector<Handler> handlers;
 
         std::vector<Handler*> get_handlers(const uchar&);
+
       public:
         Logger() = delete;
         explicit Logger(const std::string&);
@@ -41,11 +42,16 @@ namespace xlog
         static void set_termination_stream(buffer_t);
         static void set_termination_msg(const std::string&);
 
+        void log(const std::string&, const uchar&, Record);
         void rename(std::string new_name) { name = std::move(new_name); };
+
+        // returns `*this` so that users can do things like
+        // `Logger lgr = Logger().add_handler(hdlr);`
         Logger& add_handler(const Handler&);
         Logger& add_handler(ilist<Handler>);
         Logger& set_format(Format format) { fmt = format; };
-        void log(const std::string&, const uchar&, Record);
     };
+
+    Logger& get_logger(const std::string&);
 }
 #endif

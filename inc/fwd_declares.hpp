@@ -6,16 +6,20 @@
 #include <version>
 #endif
 
-#include <string>
 #include <exception>
 #include <ctime>
+
 #include <iostream>
 #include <fstream>
+
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <initializer_list>
+
 #include <thread>
 #include <mutex>
-#include <initializer_list>
+
 
 // ensure that filesystem xor experimental filesystem is included
 #ifndef INC_STD_FS_EXP
@@ -58,20 +62,20 @@ namespace xlog::fs = std::filesystem;
 
 #if __cplusplus > 201703L
 
-#ifndef X_LOG_LIKELY
-#define X_LOG_LIKELY [[likely]]
+#ifndef LIKELY
+#define LIKELY [[likely]]
 #endif
-#ifndef X_LOG_UNLIKELY
-#define X_LOG_UNLIKELY [[unlikely]]
+#ifndef UNLIKELY
+#define UNLIKELY [[unlikely]]
 #endif
 
 #else
 
-#ifndef X_LOG_LIKELY
-#define X_LOG_LIKELY
+#ifndef LIKELY
+#define LIKELY
 #endif
-#ifndef X_LOG_UNLIKELY
-#define X_LOG_UNLIKELY
+#ifndef UNLIKELY
+#define UNLIKELY
 #endif
 #ifndef consteval
 #define consteval constexpr
@@ -83,18 +87,20 @@ namespace xlog::fs = std::filesystem;
 namespace xlog
 {
     typedef std::streambuf* buffer_t;
+    typedef std::filebuf* fbuffer_t;
     typedef std::unordered_map<std::string, std::string> str_umap;
-    typedef std::lock_gaurd<std::mutex> lock_gaurd_t;
-    typedef std::unique_lock<std::mutex> ulock_t;
     typedef unsigned int uint;
     typedef unsigned char uchar;
 
-    // if there is c++20 support, use jthread because jthread is safer
+// if there is c++20 support, use jthread because jthread is safer
 #if __cplusplus > 201703L
     typedef std::jthread thread_t;
 #else
     typedef std::thread thread_t;
 #endif
+    typedef std::mutex mutex_t;
+    typedef std::lock_gaurd<mutex_t> lock_gaurd_t;
+    typedef std::unique_lock<mutex_t> ulock_t;
 
     template<typename T>
     using ilist = const std::initializer_list<T>&;
