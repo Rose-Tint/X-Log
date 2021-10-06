@@ -81,8 +81,8 @@ namespace xlog::fs = std::filesystem;
 #define consteval constexpr
 #endif
 
-
 #endif
+
 
 namespace xlog
 {
