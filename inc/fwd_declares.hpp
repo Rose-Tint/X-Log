@@ -1,7 +1,11 @@
 #ifndef X_LOG_STL_INCLUDES
 #define X_LOG_STL_INCLUDES
 
+
+#if __cplusplus > 201703L
 #include <version>
+#endif
+
 #include <string>
 #include <exception>
 #include <ctime>
@@ -13,7 +17,7 @@
 #include <mutex>
 #include <initializer_list>
 
-// ensure either filesystem xor experimental filesystem is included
+// ensure that filesystem xor experimental filesystem is included
 #ifndef INC_STD_FS_EXP
 #ifdef __cpp_lib_filesystem
 #define INC_STD_FS_EXP 0
@@ -51,9 +55,34 @@ namespace xlog::fs = std::filesystem;
 #endif
 #endif
 
+
+#if __cplusplus > 201703L
+
+#ifndef X_LOG_LIKELY
+#define X_LOG_LIKELY [[likely]]
+#endif
+#ifndef X_LOG_UNLIKELY
+#define X_LOG_UNLIKELY [[unlikely]]
+#endif
+
+#else
+
+#ifndef X_LOG_LIKELY
+#define X_LOG_LIKELY
+#endif
+#ifndef X_LOG_UNLIKELY
+#define X_LOG_UNLIKELY
+#endif
+#ifndef consteval
+#define consteval constexpr
+#endif
+
+
+#endif
+
 namespace xlog
 {
-    typedef (volatile std::streambuf)* buffer_t;
+    typedef std::streambuf* buffer_t;
     typedef std::unordered_map<std::string, std::string> str_umap;
     typedef std::lock_gaurd<std::mutex> lock_gaurd_t;
     typedef std::unique_lock<std::mutex> ulock_t;
@@ -75,8 +104,8 @@ namespace xlog
     class Format;
     class Error;
     class Handler;
-    class Record;
     class LogStream;
+    class Record;
 }
 
 #endif
