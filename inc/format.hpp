@@ -19,21 +19,30 @@ namespace xlog
 
     class Format final
     {
+        friend Format& get_format(const std::string&);
+
         static inline const std::string def_time_fmt = "Y/M/D H:m:S:s";
             // year/month/day hour/minute/second/millisecond
+        static lookup_map<Format> formats;
+
+        std::string name;
         DateTimeFormat dt_fmt;
         std::string fmt;
 
-        str_umap get_args(const Record&) const;
+        arg_map_t get_args(const Record&) const;
 
       public:
-        explicit Format(std::string format, std::string dtf = def_time_fmt)
-            : fmt(format), dt_fmt(dtf) { }
+        typedef str_umap<std::string> arg_map_t;
+        explicit Format(const std::string&, const std::string&, const std::string& = def_time_fmt)
 
         std::string operator()(const Record&) const;
+        void rename(const std::string _name) { name = _name; }
 
         void set_fmt(const std::string& format) { fmt = format; };
         void set_time_fmt(const std::string& tfmt) { time_fmt = tfmt; };
     };
+
+    Format& get_format(const std::string&);
 }
+
 #endif

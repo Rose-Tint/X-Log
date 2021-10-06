@@ -8,16 +8,20 @@ namespace xlog
     typedef bool (*filter_f)(const Record&);
     typedef void (*post_filter_f)(Record&);
 
-    class Filter
+    class Filter final
     {
+        friend Filter& get_filter(const std::string&);
+
         static bool def_filter(const Record&) { return true; }
+        static lookup_map<Filter> filters;
+
+        std::string name;
         pre_filter_f pre;
         filter_f main_;
         post_filter_f post;
 
       public:
-        Filter();
-        explicit Filter(filter_f, pre_filter_f = nullptr, post_filter_f = nullptr);
+        explicit Filter(const std::string&, filter_f = nullptr, pre_filter_f = nullptr, post_filter_f = nullptr);
 
         void set_pre(pre_filter_f pref) { pre = pref; }
         void set(filter_f filt) { main_ = filt; }
@@ -28,8 +32,11 @@ namespace xlog
         void rm_post() { post = nullptr; }
         void reset() { rm_pre(); reset_main(); rm_post(); }
 
+        void rename(const std::string& _name) { name = _name; }
         bool operator()(Record&) const;
     };
+
+    Filter& get_filter(const std::string&);
 }
 
 #endif

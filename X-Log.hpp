@@ -13,11 +13,12 @@
 #include "logstream.hpp"
 #include "record.hpp"
 
-#ifndef X_LOG_NO_PREDEF_LOGGER
-#include <iostream>
-#include <string>
-xlog::Logger main_lgr = xlog::Logger(std::string("main"), std::cout.rdbuf());
-#endif
+namespace xlog
+{
+    Filter stdfilt = Filter("std");
+    Handler stdhdlr = Handler("std").add_buffer(std::cout.rdbuf()).set_filter("std");
+    Logger root = Logger("root").add_handler("std");
+}
 
 #ifndef X_LOG_NO_AUTO_INFO
 #define X_LOG_NO_AUTO_INFO

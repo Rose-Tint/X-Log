@@ -86,9 +86,9 @@ namespace xlog::fs = std::filesystem;
 
 namespace xlog
 {
+    typedef std::unordered_set<std::string> str_uset_t;
     typedef std::streambuf* buffer_t;
     typedef std::filebuf* fbuffer_t;
-    typedef std::unordered_map<std::string, std::string> str_umap;
     typedef unsigned int uint;
     typedef unsigned char uchar;
 
@@ -104,6 +104,10 @@ namespace xlog
 
     template<typename T>
     using ilist = const std::initializer_list<T>&;
+    template<typename T>
+    using str_umap = std::unordered_map<std::string, T>;
+    template<typename T>
+    using lookup_map = std::unordered_map<std::string&, T*>
 
 
     class Logger;

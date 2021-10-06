@@ -15,9 +15,9 @@ namespace xlog
     void Record::init_rest(const std::string& message, const std::string& lname, const uchar& level)
         : msg(message), lgr(lname), lvl(level) { }
 
-    str_umap Recod::get_dict() const
+    Record::arg_map_t Recod::get_dict() const
     {
-        str_umap dict
+        arg_map_t dict
         {
             { "msg" , msg  }
             { "lgr" , lgr  }
