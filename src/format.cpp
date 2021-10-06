@@ -16,6 +16,22 @@ namespace xlog
         }
     }
 
+    Format& get_format(const std::string& name)
+    {
+        if (Format::formats.count(name) == 0)
+        {
+            Format new_fmt = Format(name);
+            return new_fmt;
+        }
+        return *(Format::formats[name]);
+    }
+
+    Format::Format(const std::string& _name, const std::string& format, const std::string& dtf)
+        : name(_name), fmt(format), dt_fmt(dtf)
+    {
+        formats.insert({ name, this });
+    }
+
     Format::arg_map_t Format::get_args(const Record& rcd) const
     {
         arg_map_t new_args = rcd.get_dict();

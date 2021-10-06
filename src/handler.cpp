@@ -7,8 +7,8 @@ namespace xlog
     {
         if (Handler::handlers.count(name) == 0)
         {
-            Handler new_lgr = Handler(name);
-            return new_lgr;
+            Handler new_hdlr = Handler(name);
+            return new_hdlr;
         }
         return *(Handler::handlers[name]);
     }
