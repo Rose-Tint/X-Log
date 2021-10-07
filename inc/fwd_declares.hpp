@@ -51,11 +51,11 @@
 #endif
 #if INC_STD_FS_EXP
 #include <experimental/filesystem>
-namespace xlog::fs = std::experimental::filesystem;
+namespace xlog { namespace fs = std::experimental::filesystem; }
 #undef INC_STD_FS_EXP
 #else
 #include <filesystem>
-namespace xlog::fs = std::filesystem;
+namespace xlog { namespace fs = std::filesystem; }
 #undef INC_STD_FS_EXP
 #endif
 #endif
@@ -100,7 +100,7 @@ namespace xlog
     typedef std::thread thread_t;
 #endif
     typedef std::mutex mutex_t;
-    typedef std::lock_gaurd<mutex_t> lock_gaurd_t;
+    typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
     template<typename T>
