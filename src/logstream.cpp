@@ -1,18 +1,13 @@
 #include "logstream.hpp"
 
 
-// LEFT OFF AT
-// figuring out how to make the destructor safe
-// current idea: launch a thread in the ctr that locks a mutex
-//     and unlocks it when all child threads are finished
-//     and the destructor will be waiting on that mutex so that
-//     when all child threads die, the destructor can continue.
-
-
 namespace xlog
 {
     LogStream::LogStream(ilist<buffer_t> bufs)
-        : buffers(bufs.begin(), bufs.end()) { }
+        : buffers(bufs.begin(), bufs.end())
+    {
+        io_lock = ulock_t(io_mtx, std::defer_lock);
+    }
 
     LogStream::~LogStream()
     {
@@ -20,6 +15,30 @@ namespace xlog
         {
             thread.join();
         }
+    }
+
+    LogStream& LogStream::operator=(LogStream&& other)
+    {
+        UNLIKELY if (this == &other) return *this;
+        io_lock = std::move(other.io_lock);
+        buffers = std::move(other.buffers);
+        for (thread_t& thread : other.threads)
+        {
+            thread.join();
+        }
+        threads = std::move(other.threads);
+        return *this;
+    }
+
+    LogStream::LogStream(LogStream&& other)
+    {
+        io_lock = std::move(other.io_lock);
+        buffers = std::move(other.buffers);
+        for (thread_t& thread : other.threads)
+        {
+            thread.join();
+        }
+        threads = std::move(other.threads);
     }
 
     LogStream& LogStream::add_buffer(buffer_t buf)
@@ -36,11 +55,11 @@ namespace xlog
 
     void LogStream::flush()
     {
-        thread_t thread(&LogStream::flush, this);
+        thread_t thread(_flush, this);
         threads.push_back(std::move(thread));
     }
 
-    void LogStream::flush(LogStream* ls)
+    void LogStream::_flush(LogStream* ls)
     {
         ls->io_lock.lock();
         for (auto buffer : ls->buffers)
@@ -52,11 +71,11 @@ namespace xlog
 
     void LogStream::write(const std::string& str)
     {
-        thread_t thread(&LogStream::write, str, this);
+        thread_t thread(_write, str, this);
         threads.push_back(std::move(thread));
     }
 
-    void LogStream::write(const std::string& str, LogStream* ls)
+    void LogStream::_write(const std::string& str, LogStream* ls)
     {
         ls->io_lock.lock();
         for (auto buffer : ls->buffers)

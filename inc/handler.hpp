@@ -16,13 +16,19 @@ namespace xlog
         static lookup_map<Handler> handlers;
 
         std::string name;
+        std::string filter_name;
         LogStream lstream;
-        Filter filter;
         uchar min;
         uchar max;
+        Filter& filter() { return xlog::get_filter(filter_name); }
 
       public:
         explicit Handler(const std::string&, uchar = 0);
+
+        ~Handler();
+
+        Handler(Handler&&);
+        Handler& operator=(Handler&&);
 
         const uchar get_min() const { return min; }
         const uchar& get_max() const { return max; }
@@ -37,8 +43,8 @@ namespace xlog
         Handler& add_buffers(ilist<buffer_t>);
         Handler& add_files(ilist<fs::path>);
 
-        void rename(const std::string& new_name) { name = new_name; }
-        bool handle(Record&) const;
+        bool handle(Record&);
+        const std::string& get_name() const { return name; }
     };
 
     Handler& get_handler(const std::string&);

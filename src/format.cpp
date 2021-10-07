@@ -1,4 +1,5 @@
 #include "format.hpp"
+#include "errors.hpp"
 
 using std::to_string;
 
@@ -24,21 +25,26 @@ namespace xlog
         }
         if (Format::formats.count(name) == 0)
         {
-            Format new_fmt = Format(name);
+            // throw...
         }
         return *(Format::formats[name]);
     }
 
-    Format::Format(const std::string& _name, const std::string& format, const std::string& dtf)
+    Format::Format(const std::string& _name, const std::string& format, const DateTimeFormat& dtf)
         : name(_name), fmt(format), dt_fmt(dtf)
     {
         formats.insert({ name, this });
     }
 
-    Format::arg_map_t Format::get_args(const Record& rcd) const
+    Format::~Format()
+    {
+        formats.erase(name);
+    }
+
+    arg_map_t Format::get_args(const Record& rcd) const
     {
         arg_map_t new_args = rcd.get_dict();
-        new_args.merge({
+        new_args.insert({
             { "time" , dt_fmt.time        },
             { "date" , dt_fmt.date        },
             { "dtime", dt_fmt.get_dtime() }
@@ -46,7 +52,7 @@ namespace xlog
         return new_args;
     }
 
-    std::string Format::operator()(const Record& rec) const
+    std::string Format::operator()(const Record& rcd) const
     {
         std::string new_msg, curr_var;
         char curr = 0, last_char = 0, scd_last = 0;
@@ -54,13 +60,13 @@ namespace xlog
         int rep_start = 0, rep_size = 0;
         auto args = get_args(rcd);
 
-        for (int i = 0; i < rec.msg.size(); curr = rec.msg[++i])
+        for (int i = 0; i < rcd.get_msg().size(); curr = rcd.get_msg()[++i])
         {
             if (read)
             {
                 if (curr == '}' && last_char != '\\')
                 {
-                    if (rec.args.count(curr_var) == 0)
+                    if (rcd.get_args().count(curr_var) == 0)
                     {
                         throw err::FormatArgNotFound(curr_var);
                     }
@@ -81,7 +87,6 @@ namespace xlog
             else if (curr == '{' && last_char == '$' && scd_last != '\\')
             {
                 read = true;
-                rep_start = nmsg_i - 1;
             }
             else
             {

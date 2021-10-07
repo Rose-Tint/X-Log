@@ -1,6 +1,9 @@
 #ifndef X_LOG_FILTER_HPP
 #define X_LOG_FILTER_HPP
 
+#include "fwd_declares.hpp"
+#include "format.hpp"
+#include "record.hpp"
 
 namespace xlog
 {
@@ -32,8 +35,8 @@ namespace xlog
         void rm_post() { post = nullptr; }
         void reset() { rm_pre(); reset_main(); rm_post(); }
 
-        void rename(const std::string& _name) { name = _name; }
         bool operator()(Record&) const;
+        const std::string& get_name() const { return name; }
     };
 
     Filter& get_filter(const std::string&);

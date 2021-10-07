@@ -23,7 +23,6 @@ namespace xlog
         arg_map_t args;
 
       public:
-        typedef str_umap<std::string> arg_map_t;
         Record(const std::string& f, const uint& ln, const arg_map_t& map)
             : file(f), line(ln), args(map) { }
 
@@ -42,7 +41,7 @@ namespace xlog
 }
 
 #ifndef MAKE_RCD
-#define MAKE_RCD(args...) xlog::Record( __FILE__, __LINE__, { args } )
+#define MAKE_RCD(...) xlog::Record( __FILE__, __LINE__, { __VA_ARGS__ } )
 #endif
 
 #endif

@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/json.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -50,11 +51,11 @@
 #endif
 #if INC_STD_FS_EXP
 #include <experimental/filesystem>
-namespace xlog::fs = std::experimental::filesystem;
+namespace xlog { namespace fs = std::experimental::filesystem; }
 #undef INC_STD_FS_EXP
 #else
 #include <filesystem>
-namespace xlog::fs = std::filesystem;
+namespace xlog { namespace fs = std::filesystem; }
 #undef INC_STD_FS_EXP
 #endif
 #endif
@@ -86,7 +87,15 @@ namespace xlog::fs = std::filesystem;
 
 namespace xlog
 {
+    template<typename T>
+    using ilist = const std::initializer_list<T>&;
+    template<typename T>
+    using str_umap = std::unordered_map<std::string, T>;
+    template<typename T>
+    using lookup_map = std::unordered_map<std::string, T*>;
+
     typedef std::unordered_set<std::string> str_uset_t;
+    typedef str_umap<std::string> arg_map_t;
     typedef std::streambuf* buffer_t;
     typedef std::filebuf* fbuffer_t;
     typedef unsigned int uint;
@@ -99,16 +108,8 @@ namespace xlog
     typedef std::thread thread_t;
 #endif
     typedef std::mutex mutex_t;
-    typedef std::lock_gaurd<mutex_t> lock_gaurd_t;
+    typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
-
-    template<typename T>
-    using ilist = const std::initializer_list<T>&;
-    template<typename T>
-    using str_umap = std::unordered_map<std::string, T>;
-    template<typename T>
-    using lookup_map = std::unordered_map<std::string&, T*>
-
 
     class Logger;
     class Format;

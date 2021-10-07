@@ -1,4 +1,4 @@
-#include "format.hpp"
+#include "filter.hpp"
 
 
 namespace xlog
@@ -30,7 +30,12 @@ namespace xlog
         }
     }
 
-    bool operator()(Record& rcd) const
+    Filter::~Filter()
+    {
+        filters.erase(name);
+    }
+
+    bool Filter::operator()(Record& rcd) const
     {
         if (pre != nullptr) pre(rcd);
         if (!main_(rcd)) return false;

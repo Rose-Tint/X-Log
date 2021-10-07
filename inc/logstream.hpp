@@ -1,5 +1,5 @@
-#ifndef X_LOG_HANDLER_HPP
-#define X_LOG_HANDLER_HPP
+#ifndef X_LOG_LOGSTREAM_HPP
+#define X_LOG_LOGSTREAM_HPP
 
 #include "fwd_declares.hpp"
 #include "record.hpp"
@@ -10,14 +10,14 @@ namespace xlog
     class LogStream
     {
         static mutex_t io_mtx;
-        static void write(const std::string&, LogStream*);
-        static void flush(LogStream*);
+        static void _write(const std::string&, LogStream*);
+        static void _flush(LogStream*);
 
-        ulock_t io_lock = ulock_t(io_mtx, std::defer_lock);
+        ulock_t io_lock;
 
         std::vector<thread_t> threads;
 
-        /* 
+        /*
          * even though unique value insertion would be much
          * faster using `unordered_set` or `set`, `vector` is
          * used because it iterates faster and uses less memory;
@@ -28,8 +28,11 @@ namespace xlog
 
       public:
         LogStream() = default;
-        explicit LogStream(std::ilist<buffer_t>);
+        explicit LogStream(ilist<buffer_t>);
         virtual ~LogStream();
+
+        LogStream(LogStream&&);
+        LogStream& operator=(LogStream&&);
 
         LogStream& add_buffer(buffer_t);
 
