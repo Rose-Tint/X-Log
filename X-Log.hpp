@@ -1,10 +1,6 @@
 #ifndef X_LOG_HPP
 #define X_LOG_HPP
 
-#ifndef X_LOG_CMAKE_DEFS
-#error "X-Log missing macro definitions from cmake: please make sure to build using cmake"
-#endif
-
 #include "fwd_declares.hpp"
 #include "errors.hpp"
 #include "format.hpp"
@@ -16,13 +12,13 @@
 namespace xlog
 {
     Filter stdfilt = Filter("std");
-    Handler stdhdlr = Handler("std").add_buffer(std::cout.rdbuf()).set_filter("std");
-    Logger root = Logger("root").add_handler("std");
+    Handler stdhdlr = std::move(Handler("std").add_buffer(std::cout.rdbuf()).set_filter("std"));
+    Logger root = std::move(Logger("root").add_handler("std"));
 }
 
 #ifndef X_LOG_NO_AUTO_INFO
 #define X_LOG_NO_AUTO_INFO
-#define RCD_INFO __FILE__ , __LINE__ 
+#define RCD_INFO __FILE__ , __LINE__
 #endif
 
 #ifndef X_LOG_NO_AUTO_LOG_MACRO
