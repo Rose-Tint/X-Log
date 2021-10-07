@@ -28,7 +28,7 @@ namespace xlog
 
       public:
         LogStream() = default;
-        explicit LogStream(std::ilist<buffer_t>);
+        explicit LogStream(ilist<buffer_t>);
         virtual ~LogStream();
 
         LogStream& add_buffer(buffer_t);
