@@ -13,19 +13,23 @@ namespace xlog
     }
 
     void Record::init_rest(const std::string& message, const std::string& lname, const uchar& level)
-        : msg(message), lgr(lname), lvl(level) { }
+    {
+        msg = message;
+        lgr = lname;
+        lvl = level;
+    }
 
-    Record::arg_map_t Recod::get_dict() const
+    arg_map_t Record::get_dict() const
     {
         arg_map_t dict
         {
-            { "msg" , msg  }
-            { "lgr" , lgr  }
-            { "lvl" , lvl  }
-            { "file", file }
-            { "line", line }
+            { "msg" , msg                  },
+            { "lgr" , lgr                  },
+            { "file", file                 },
+            { "lvl" , std::to_string(lvl)  },
+            { "line", std::to_string(line) },
         };
-        dict.merge(args);
+        dict.insert(args.begin(), args.end());
         return dict;
     }
 }
