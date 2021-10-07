@@ -24,12 +24,14 @@ namespace xlog
 
       public:
         explicit Logger(const std::string&);
+        Logger(Logger&&) = default;
+        Logger& operator=(Logger&&) = default;
+
+        ~Logger();
 
         Logger() = delete;
         Logger(const Logger&) = delete;
-        Logger(Logger&&) = delete;
         Logger& operator=(const Logger&) = delete;
-        Logger& operator=(Logger&&) = delete;
 
         static void add_ext(std::string);
         static void add_exts(ilist<std::string>);

@@ -1,6 +1,9 @@
 #ifndef X_LOG_FILTER_HPP
 #define X_LOG_FILTER_HPP
 
+#include "fwd_declares.hpp"
+#include "format.hpp"
+#include "record.hpp"
 
 namespace xlog
 {
