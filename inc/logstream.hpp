@@ -10,10 +10,10 @@ namespace xlog
     class LogStream
     {
         static mutex_t io_mtx;
-        static void write(const std::string&, LogStream*);
-        static void flush(LogStream*);
+        static void _write(const std::string&, LogStream*);
+        static void _flush(LogStream*);
 
-        ulock_t io_lock = ulock_t(io_mtx, std::defer_lock);
+        ulock_t io_lock;
 
         std::vector<thread_t> threads;
 
@@ -30,6 +30,9 @@ namespace xlog
         LogStream() = default;
         explicit LogStream(ilist<buffer_t>);
         virtual ~LogStream();
+
+        LogStream(LogStream&&);
+        LogStream& operator=(LogStream&&);
 
         LogStream& add_buffer(buffer_t);
 
