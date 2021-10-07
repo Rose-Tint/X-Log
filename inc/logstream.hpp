@@ -35,6 +35,7 @@ namespace xlog
         LogStream& operator=(LogStream&&);
 
         LogStream& add_buffer(buffer_t);
+        LogStream& add_stream(const std::ostream&);
 
         void flush();
         void write(const std::string&);
