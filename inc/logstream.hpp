@@ -1,5 +1,5 @@
-#ifndef X_LOG_HANDLER_HPP
-#define X_LOG_HANDLER_HPP
+#ifndef X_LOG_LOGSTREAM_HPP
+#define X_LOG_LOGSTREAM_HPP
 
 #include "fwd_declares.hpp"
 #include "record.hpp"
@@ -17,7 +17,7 @@ namespace xlog
 
         std::vector<thread_t> threads;
 
-        /* 
+        /*
          * even though unique value insertion would be much
          * faster using `unordered_set` or `set`, `vector` is
          * used because it iterates faster and uses less memory;
