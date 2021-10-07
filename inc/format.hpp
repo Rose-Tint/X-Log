@@ -21,8 +21,10 @@ namespace xlog
     {
         friend Format& get_format(const std::string&);
 
-        static inline const std::string def_time_fmt = "Y/M/D H:m:S:s";
-            // year/month/day hour/minute/second/millisecond
+        // year/month/day hour/minute/second/millisecond
+        static inline const std::string def_time_fmt = "H:m:S:s";
+        static inline const std::string def_date_fmt = "Y/M/D";
+        static inline const std::string def_fmt = "${date} | ${file} - line ${line}:\n -- ${msg}";
         static lookup_map<Format> formats;
 
         std::string name;
@@ -32,14 +34,15 @@ namespace xlog
         arg_map_t get_args(const Record&) const;
 
       public:
-        typedef str_umap<std::string> arg_map_t;
-        explicit Format(const std::string&, const std::string&, const std::string& = def_time_fmt)
+        explicit Format(const std::string&, const std::string& = def_fmt, const DateTimeFormat& = { def_time_fmt, def_date_fmt });
 
         std::string operator()(const Record&) const;
         const std::string& get_name() const { return name; }
 
         void set_fmt(const std::string& format) { fmt = format; };
-        void set_time_fmt(const std::string& tfmt) { time_fmt = tfmt; };
+        void set_time_fmt(const std::string& tfmt) { dt_fmt.time = tfmt; };
+        void set_date_fmt(const std::string& tfmt) { dt_fmt.date = tfmt; };
+        void set_dtime_fmt(const std::string& tfmt) { dt_fmt.date_time = tfmt; };
     };
 
     Format& get_format(const std::string&);

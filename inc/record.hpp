@@ -23,7 +23,6 @@ namespace xlog
         arg_map_t args;
 
       public:
-        typedef str_umap<std::string> arg_map_t;
         Record(const std::string& f, const uint& ln, const arg_map_t& map)
             : file(f), line(ln), args(map) { }
 
