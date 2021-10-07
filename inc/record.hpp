@@ -18,13 +18,14 @@ namespace xlog
         void init_rest(const std::string&, const std::string&, const uchar&);
 
         // set by ctr
+        std::string func;
         std::string file;
         uint line;
         arg_map_t args;
 
       public:
-        Record(const std::string& f, const uint& ln, const arg_map_t& map)
-            : file(f), line(ln), args(map) { }
+        Record(const std::string&, const uint&, str_pair_t = { });
+        Record(const std::string&, const uint&, const std::string, str_pair_t = { });
 
         Record(Record&&);
 
@@ -37,6 +38,13 @@ namespace xlog
         const arg_map_t& get_args() const { return args; }
 
         arg_map_t get_dict() const;
+
+#ifdef CPP20
+        Record(const std::source_location&, const arg_map_t&);
+#ifndef MAKE_RCD
+#define MAKE_RCD(...) xlog::Record(std::source_location::current())
+#endif
+#endif
     };
 }
 
