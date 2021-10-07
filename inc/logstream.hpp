@@ -24,7 +24,7 @@ namespace xlog
          * insertion (`add_buffer` | `add_path`) will happen
          * much less than iteration (`write`).
          */
-        std::pmr::vector<buffer_t> buffers;
+        std::vector<buffer_t> buffers;
 
       public:
         LogStream() = default;
