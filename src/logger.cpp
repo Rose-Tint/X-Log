@@ -24,6 +24,11 @@ namespace xlog
         loggers.insert({ name, this });
     }
 
+    Logger::~Logger()
+    {
+        loggers.erase(name);
+    }
+
     std::vector<Handler*> Logger::handlers(const uchar& lvl)
     {
         std::vector<Handler*> valids;
