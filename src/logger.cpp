@@ -7,16 +7,16 @@ namespace xlog
     {
         if (name == "")
         {
-            return *(Logger::loggers["root"]);
+            return *Logger::loggers["root"];
         }
         if (Logger::loggers.count(name) == 0)
         {
             Logger new_lgr = Logger(name);
         }
-        return *(Logger::loggers[name]);
+        return *Logger::loggers[name];
     }
 
-    str_set_t Logger::log_exts = { ".log", ".xlog" };
+    str_uset_t Logger::log_exts = { ".log", ".xlog" };
 
     Logger::Logger(const std::string& nm)
         : name(nm)
@@ -27,7 +27,7 @@ namespace xlog
     std::vector<Handler*> Logger::handlers(const uchar& lvl)
     {
         std::vector<Handler*> valids;
-        for (const std::string& hname : handlers)
+        for (const std::string& hname : handler_names)
         {
             Handler& handler = xlog::get_handler(hname);
             if (handler.get_min() < lvl && lvl < handler.get_max())
@@ -50,7 +50,7 @@ namespace xlog
         return *this;
     }
 
-    Logger& Logger::add_handlers(ilist<Handler&> handlers)
+    Logger& Logger::add_handlers(ilist<Handler> handlers)
     {
         for (const Handler& handler : handlers) add_handler(handler.get_name());
         return *this;
@@ -62,47 +62,24 @@ namespace xlog
         return *this;
     }
 
-    Logger& Logger::set_termination_stream(buffer_t buf)
+    void Logger::add_ext(std::string ext)
     {
-        termination_stream = {{ buf }};
-        return *this;
-    }
-
-    void Logger::set_termination_msg(const std::string& msg)
-    {
-        termination_msg = msg;
-    }
-
-    void Logger::termination_h()
-    {
-        auto old_h = std::get_terminate();
-        log_all(termination_msg, 100, {});
-        old_h();
-    }
-
-    void Logger::add_ext(const std::string& ext)
-    {
-        if (ext[0] != '.') ext.insert(0, 1, ".");
+        if (ext[0] != '.') ext.insert(0, 1, '.');
         log_exts.insert(ext);
     }
 
-    void Logger::add_exts(ilist<std::string&> exts)
+    void Logger::add_exts(ilist<std::string> exts)
     {
         for (const std::string& ext : exts) add_ext(ext);
     }
 
     void Logger::log(const std::string& msg, const uchar& lvl, Record rcd)
     {
-        rcd.init_rest(msg, lvl, name);
+        rcd.init_rest(msg, name, lvl);
         auto& valid_handlers = handlers(lvl);
         for (Handler* h_ptr : valid_handlers)
         {
             h_ptr->handle(rcd);
         }
-    }
-
-    void Logger::log_all(const std::string& msg, const uchar& lvl, Record rcd)
-    {
-        for (auto pair : loggers) pair.second->log(msg, lvl, rcd);
     }
 }
