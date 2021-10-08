@@ -14,6 +14,7 @@ namespace xlog
     class Filter final
     {
         friend Filter& get_filter(const std::string&);
+        friend Filter* find_filter(const std::string&);
 
         static bool def_filter(const Record&) { return true; }
         static lookup_map<Filter> filters;
@@ -23,8 +24,14 @@ namespace xlog
         filter_f main_;
         post_filter_f post;
 
-      public:
         explicit Filter(const std::string&, filter_f = nullptr, pre_filter_f = nullptr, post_filter_f = nullptr);
+
+      public:
+        Filter(Filter&&);
+        Filter& operator=(Filter&&);
+
+        Filter(const Filter&) = delete;
+        Filter& operator=(const Filter&) = delete;
 
         void set_pre(pre_filter_f pref) { pre = pref; }
         void set(filter_f filt) { main_ = filt; }
