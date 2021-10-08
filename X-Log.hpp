@@ -11,9 +11,10 @@
 
 namespace xlog
 {
-    Filter stdfilt = Filter("std");
-    Handler stdhdlr = std::move(Handler("std").add_buffer(std::cout.rdbuf()).set_filter("std"));
-    Logger root = std::move(Logger("root").add_handler("std"));
+    const Format& stdfmt = get_format("std");
+    const Filter& stdfilt = get_filter("std");
+    const Handler& stdhdlr = get_handler("std").add_buffer(std::cout.rdbuf()).set_filter("std").set_filter("stdfilt");
+    const Logger& root = get_logger("root").add_handler("std");
 }
 
 #ifndef __FUNCTION_NAME__
