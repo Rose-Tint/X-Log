@@ -84,12 +84,6 @@ namespace xlog
         return *this;
     }
 
-    Handler& Handler::set_filter(const Filter& filt)
-    {
-        filter_name = filt.get_name();
-        return *this;
-    }
-
     Handler& Handler::add_buffer(buffer_t buf)
     {
         lstream.add_buffer(buf);
