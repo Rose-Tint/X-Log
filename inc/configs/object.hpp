@@ -6,6 +6,8 @@
 
 namespace config
 {
+    template<class ConfigType> void config(const ConfigType&);
+
     class Object
     {
         // there is no Filter config support for the
@@ -13,8 +15,10 @@ namespace config
         // for Handlers; the arguments cannot be
         // dynamically loaded (name lookup)
 
-        template<class>
-        friend void config<Object>(const Object&);
+        template<class> friend void config<Object>(const Object&);
+
+        static inline bool already_configured = false;
+
         struct _type
         {
             std::string name;
@@ -23,7 +27,7 @@ namespace config
         struct _logger : _type
         {
             std::vector<std::string> handlers = { };
-            operator Logger&();
+            operator Logger();
         };
 
         struct _handler : _type
@@ -31,18 +35,17 @@ namespace config
             std::string format = "std";
             uchar min = 0;
             uchar max = -1;
-            std::vector<std::string> filters = { };
             std::vector<fs::path> files = { };
-            operator Handler&();
+            operator Handler();
         };
 
         struct _format : _type
         {
-            std::string fmt;
-            std::string time;
-            std::string date;
-            std::string datetime;
-            operator Format&();
+            std::string fmt = Format::def_fmt;
+            std::string time = Format::def_dft.time;
+            std::string date = Format::def_dft.date;
+            std::string datetime = Format::def_dft.date_time;
+            operator Format();
         };
 
         std::vector<_logger> loggers;

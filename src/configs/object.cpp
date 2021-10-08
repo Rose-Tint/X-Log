@@ -6,7 +6,8 @@ namespace xlog::config
     Object(str_umap<std::vector<_type*>> map)
     {
         {
-            bool no_lgrs=1, no_hdlrs=1, no_filt=1, no_fmts=1;
+            if (already_configured) ;// throw...
+            bool no_lgrs=1, no_hdlrs=1, no_fmts=1;
 
             if (map.count("Loggers") != 0)
             {
@@ -18,7 +19,7 @@ namespace xlog::config
                     {
                         auto lgr = dynamic_cast<_logger*>(value);
                         if (!lgr);// throw...
-                        Logger& logger = (Logger)(*lgr);
+                        Logger(*lgr);
                     }
                 }
             }
@@ -33,7 +34,7 @@ namespace xlog::config
                     {
                         auto hdlr = dynamic_cast<_handler*>(value);
                         if (!hdlr);// throw...
-                        Handler& handler = (Handler)(*hdlr);
+                        Handler(*hdlr);
                     }
                 }
             }
@@ -48,16 +49,24 @@ namespace xlog::config
                     {
                         auto fmt = dynamic_cast<_format*>(value);
                         if (!fmt);// throw...
-                        Filter& filter = (Filter)(*fmt);
+                        Filter(*fmt);
                     }
                 }
             }
+
+            if (no_lgrs && no_hdlrs && no_filts)
+                std::cout <<
+                " -- warning: Object configuration object is empty"
+                << std::endl;
+
+            already_configured = true;
         }
     }
 
     Object::_logger::operator Logger()
     {
-        xlog::Logger& logger = get_logger(lgr->name);
+        make_logger(name);
+        Logger& logger = find_logger(lgr->name);
         for (std::string hname : lgr->handlers)
         {
             logger.add_handler(hname);
@@ -65,10 +74,11 @@ namespace xlog::config
         return logger;
     }
 
-    Object::_handler::operator xlog::Handler&()
+    Object::_handler::operator xlog::Handler()
     {
         if (min > max) std::swap(min, max);
-        Handler& handler = get_handler(name);
+        make_handler(name);
+        Handler& handler = find_handler(name);
         handler.set_format(format);
         handler.set_min(min);
         handler.set_max(max);
@@ -83,8 +93,51 @@ namespace xlog::config
         return handler;
     }
 
-    Object::_format::operator Format&()
+    Object::_format::operator Format()
     {
-        Format& format = get_format(name);
+        make_format(name);
+        Format& format = find_format(name);
+        format.set_fmt(format);
+        format.set_time_fmt(time);
+        format.set_date_fmt(date);
+        format.set_dtime_fmt(datetime);
     }
+
+    /*EXAMPLE
+    Object configuration
+    {
+        { "Loggers",{
+            { "main",{
+                "Handlers",{
+                    "std",
+                    "fatal",
+                    "debug",
+                },
+            }},
+            { "secondary",{
+                "Handlers",{
+                    "debug",
+                },
+            }},
+        }},
+        { "Handlers"{
+            { "fatal"{
+                { "Format", "${dtime} Fatal Error: ${msg}" },
+                { "Min", 5 },
+                { "Max", -1 },
+                { "Files",{
+                    "logs/fatal.log",
+                    "logs/all.log",
+                }},
+            }},
+            { "debug",{
+                { "Format", "" },
+                { "Min", 0 },
+                { "Max", -1 },
+                { "Files",{
+                    "logs/debug.log"
+                }},
+            }},
+        }},
+    };*/
 }
