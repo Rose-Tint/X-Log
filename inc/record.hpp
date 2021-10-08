@@ -27,7 +27,8 @@ namespace xlog
         Record(const std::string&, const uint&, str_pair_t = { });
         Record(const std::string&, const uint&, const std::string, str_pair_t = { });
 
-        Record(Record&&);
+        Record(Record&&) = default;
+        Record& operator=(Record&&) = default;
 
         // observers
         const std::string& get_msg() const { return msg; }

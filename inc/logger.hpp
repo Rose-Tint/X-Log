@@ -11,30 +11,27 @@ namespace xlog
 {
     class Logger final
     {
+        friend void make_logger(const std::string&);
         friend Logger& get_logger(const std::string&);
+        friend Logger& find_logger(const std::string&);
 
         static lookup_map<Logger> loggers;
-        static str_uset_t log_exts;
-        static inline Format def_fmt = Format("std");
 
         std::string name;
+        bool usable = false; // becomes usable when it gets a name;
         std::vector<std::string> handler_names;
 
         std::vector<Handler*> handlers(const uchar&);
 
-      public:
-        explicit Logger(const std::string&);
-        Logger(Logger&&) = default;
+        Logger() = default;
+        Logger(const std::string&);
+        Logger(Logger&&) = delete;
         Logger& operator=(Logger&&) = default;
-
-        ~Logger();
-
-        Logger() = delete;
         Logger(const Logger&) = delete;
-        Logger& operator=(const Logger&) = delete;
+        Logger& operator=(const Logger&) = default;
 
-        static void add_ext(std::string);
-        static void add_exts(ilist<std::string>);
+      public:
+        static inline Format def_fmt = Format("std");
 
         void log(const std::string&, const uchar&, Record);
         const std::string& get_name() const { return name; }
@@ -47,6 +44,8 @@ namespace xlog
         Logger& add_handlers(ilist<std::string>);
     };
 
+    void make_logger(const std::string&);
     Logger& get_logger(const std::string&);
+    Logger& find_logger(const std::string&);
 }
 #endif

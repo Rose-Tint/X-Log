@@ -9,16 +9,6 @@ namespace xlog
     Record::Record(const std::string& fl, const uchar& ln, str_pair_t arg_pairs)
         : file(fl), line(ln), func("unavailable"), args(arg_pairs.begin(), arg_pairs.end()) { }
 
-    Record::Record(Record&& old)
-    {
-        args = std::move(old.args);
-        msg = std::move(old.msg);
-        lgr = std::move(old.lgr);
-        lvl = old.lvl;
-        file = std::move(old.file);
-        line = old.line;
-    }
-
     void Record::init_rest(const std::string& message, const std::string& lname, const uchar& level)
     {
         msg = message;

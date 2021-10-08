@@ -3,21 +3,31 @@
 
 namespace xlog
 {
+    void make_handler(const std::string name)
+    {
+        if (Handler::handlers.count(name) != 0)
+            ;// throw...
+        auto& hdlr = Handler(name);
+    }
+
     Handler& get_handler(const std::string& name)
     {
         if (name == "")
-        {
-            return *(Handler::handlers["std"]);
-        }
+            return find_handler("std");
         if (Handler::handlers.count(name) == 0)
-        {
-            Handler new_hdlr = Handler(name);
-        }
-        return *(Handler::handlers[name]);
+            make_handler(name);
+        return find_handler(name);
     }
 
-    Handler::Handler(const std::string& _name, uchar minimum = 0)
-        : name(_name), min(minimum)
+    Handler& find_handler(const std::string& name)
+    {
+        if (Handler::handlers.count(name) == 0)
+            ;//throw...
+        return Handler::handlers[name];
+    }
+
+    Handler::Handler(const std::string& _name)
+        : name(_name)
     {
         handlers.insert({ name, this });
     }
@@ -54,8 +64,16 @@ namespace xlog
         return true;
     }
 
+    Handler& Handler::set_min(uchar mn)
+    {
+        if (mn > max) std::swap(mn, max);
+        min = mn;
+        return *this;
+    }
+
     Handler& Handler::set_max(uchar mx)
     {
+        if (mx < min) std::swap(mx, min);
         max = mx;
         return *this;
     }
@@ -63,12 +81,6 @@ namespace xlog
     Handler& Handler::set_filter(const std::string& filt_name)
     {
         filter_name = filt_name;
-        return *this;
-    }
-
-    Handler& Handler::set_filter(const Filter& filt)
-    {
-        filter_name = filt.get_name();
         return *this;
     }
 

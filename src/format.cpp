@@ -17,28 +17,33 @@ namespace xlog
         }
     }
 
+    void make_format(const std::string name)
+    {
+        if (Format::formats.count(name) != 0)
+            ;// throw...
+        auto& fmt = Format(name);
+    }
+
     Format& get_format(const std::string& name)
     {
         if (name == "")
-        {
-            return *(Format::formats["std"]);
-        }
+            return find_format("std");
         if (Format::formats.count(name) == 0)
-        {
-            // throw...
-        }
-        return *(Format::formats[name]);
+            make_format(name);
+        return find_format(name);
     }
 
-    Format::Format(const std::string& _name, const std::string& format, const DateTimeFormat& dtf)
-        : name(_name), fmt(format), dt_fmt(dtf)
+    Format& find_format(const std::string& name)
+    {
+        if (Format::formats.count(name) == 0)
+            ;//throw...
+        return Format::formats[name];
+    }
+
+    Format::Format(const std::string& _name)
+        : name(_name)
     {
         formats.insert({ name, this });
-    }
-
-    Format::~Format()
-    {
-        formats.erase(name);
     }
 
     arg_map_t Format::get_args(const Record& rcd) const

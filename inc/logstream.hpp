@@ -29,10 +29,13 @@ namespace xlog
       public:
         LogStream() = default;
         explicit LogStream(ilist<buffer_t>);
-        virtual ~LogStream();
-
         LogStream(LogStream&&);
         LogStream& operator=(LogStream&&);
+
+        virtual ~LogStream();
+
+        LogStream(const LogStream&) = delete;
+        LogStream& operator=(const LogStream&) = delete;
 
         LogStream& add_buffer(buffer_t);
         LogStream& add_stream(const std::ostream&);
