@@ -64,8 +64,16 @@ namespace xlog
         return true;
     }
 
+    Handler& Handler::set_min(uchar mn)
+    {
+        if (mn > max) std::swap(mn, max);
+        min = mn;
+        return *this;
+    }
+
     Handler& Handler::set_max(uchar mx)
     {
+        if (mx < min) std::swap(mx, min);
         max = mx;
         return *this;
     }

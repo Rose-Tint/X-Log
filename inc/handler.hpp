@@ -37,9 +37,9 @@ namespace xlog
 
         // returns `*this` so that users can do things like
         // `Handler hdler = Handler(0).add_buffer(std::cout.rdbuf());`
+        Handler& set_min(uchar);
         Handler& set_max(uchar);
         Handler& set_filter(const std::string&);
-        Handler& set_filter(const Filter&);
         Handler& add_buffer(buffer_t);
         Handler& add_file(const fs::path&);
         Handler& add_buffers(ilist<buffer_t>);
