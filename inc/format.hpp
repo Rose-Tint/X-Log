@@ -19,22 +19,28 @@ namespace xlog
 
     class Format final
     {
+        friend void make_format(const std::string&);
         friend Format& get_format(const std::string&);
+        friend Format& find_format(const std::string&);
 
-        // year/month/day hour/minute/second/millisecond
-        static inline const std::string def_time_fmt = "H:m:S:s";
-        static inline const std::string def_date_fmt = "Y/M/D";
-        static inline const std::string def_fmt = "${date} | ${file} - line ${line}:\n -- ${msg}";
         static lookup_map<Format> formats;
 
         std::string name;
-        DateTimeFormat dt_fmt;
-        std::string fmt;
+        DateTimeFormat dt_fmt = def_dtf;
+        std::string fmt = def_fmt;
 
         arg_map_t get_args(const Record&) const;
 
+        Format() = default;
+        explicit Format(const std::string&);
+        Format(Format&&) = delete;
+        Format& operator=(Format&&) = default;
+        Format(const Format&) = delete;
+        Format& operator=(const Format&) = default;
+
       public:
-        explicit Format(const std::string&, const std::string& = def_fmt, const DateTimeFormat& = { def_time_fmt, def_date_fmt });
+        static inline const DateTimeFormat def_dtf = { "H:m:S:s", "Y/M/D", "H:m:S:s - Y/M/D" }
+        static inline const std::string def_fmt = "${date} | ${file} - line ${line}:\n -- ${msg}";
 
         std::string operator()(const Record&) const;
         const std::string& get_name() const { return name; }
@@ -45,7 +51,9 @@ namespace xlog
         void set_dtime_fmt(const std::string& tfmt) { dt_fmt.date_time = tfmt; };
     };
 
+    void make_format(const std::string&);
     Format& get_format(const std::string&);
+    Format& find_format(const std::string&);
 }
 
 #endif

@@ -3,21 +3,31 @@
 
 namespace xlog
 {
+    void make_handler(const std::string name)
+    {
+        if (Handler::handlers.count(name) != 0)
+            ;// throw...
+        auto& hdlr = Handler(name);
+    }
+
     Handler& get_handler(const std::string& name)
     {
         if (name == "")
-        {
-            return *(Handler::handlers["std"]);
-        }
+            return find_handler("std");
         if (Handler::handlers.count(name) == 0)
-        {
-            Handler new_hdlr = Handler(name);
-        }
-        return *(Handler::handlers[name]);
+            make_handler(name);
+        return find_handler(name);
     }
 
-    Handler::Handler(const std::string& _name, uchar minimum = 0)
-        : name(_name), min(minimum)
+    Handler& find_handler(const std::string& name)
+    {
+        if (Handler::handlers.count(name) == 0)
+            ;//throw...
+        return Handler::handlers[name];
+    }
+
+    Handler::Handler(const std::string& _name)
+        : name(_name)
     {
         handlers.insert({ name, this });
     }

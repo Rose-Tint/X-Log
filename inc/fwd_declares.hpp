@@ -4,6 +4,9 @@
 
 #if __cplusplus > 201703L
 #include <version>
+#ifndef CPP20
+#define CPP20
+#endif
 #endif
 
 #include <exception>
@@ -59,7 +62,7 @@
 #endif
 
 
-#if __cplusplus > 201703L
+#ifdef CPP20
 #  ifndef LIKELY
 #    define LIKELY [[likely]]
 #  endif
@@ -86,7 +89,7 @@ namespace xlog
     template<typename T>
     using str_umap = std::unordered_map<std::string, T>;
     template<typename T>
-    using lookup_map = std::unordered_map<std::string, T*>;
+    using lookup_map = std::unordered_map<std::string, std::unique_ptr<T>>;
 
     typedef std::unordered_set<std::string> str_uset_t;
     typedef str_umap<std::string> arg_map_t;
@@ -97,7 +100,7 @@ namespace xlog
     typedef unsigned char uchar;
 
 // if there is c++20 support, use jthread because jthread is safer
-#if __cplusplus > 201703L
+#ifdef CPP20
     typedef std::jthread thread_t;
 #else
     typedef std::thread thread_t;

@@ -3,30 +3,33 @@
 
 namespace xlog
 {
+    void make_logger(const std::string name)
+    {
+        if (Logger::loggers.count(name) != 0)
+            ;// throw...
+        auto& lgr = Logger(name);
+    }
+
     Logger& get_logger(const std::string& name)
     {
         if (name == "")
-        {
-            return *Logger::loggers["root"];
-        }
+            return find_logger("std");
         if (Logger::loggers.count(name) == 0)
-        {
-            Logger new_lgr = Logger(name);
-        }
-        return *Logger::loggers[name];
+            make_logger(name);
+        return find_logger(name);
     }
 
-    str_uset_t Logger::log_exts = { ".log", ".xlog" };
+    Logger& find_logger(const std::string& name)
+    {
+        if (Logger::loggers.count(name) == 0)
+            ;//throw...
+        return Logger::loggers[name];
+    }
 
     Logger::Logger(const std::string& nm)
         : name(nm)
     {
         loggers.insert({ name, this });
-    }
-
-    Logger::~Logger()
-    {
-        loggers.erase(name);
     }
 
     std::vector<Handler*> Logger::handlers(const uchar& lvl)

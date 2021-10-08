@@ -3,36 +3,33 @@
 
 namespace xlog
 {
+    void make_filter(const std::string name)
+    {
+        if (Filter::filters.count(name) != 0)
+            ;// throw...
+        auto& filt = Filter(name);
+    }
+
     Filter& get_filter(const std::string& name)
     {
         if (name == "")
-        {
-            return *(Filter::filters["std"]);
-        }
+            return find_filter("std");
         if (Filter::filters.count(name) == 0)
-        {
-            Filter new_filt = Filter(name);
-        }
-        return *(Filter::filters[name]);
+            make_filter(name);
+        return find_filter(name);
     }
 
-    Filter::Filter(const std::string& _name, filter_f filt, pre_filter_f pref, post_filter_f postf)
-        : name(_name), pre(pref), post(postf)
+    Filter& find_filter(const std::string& name)
+    {
+        if (Filter::filters.count(name) == 0)
+            ;//throw...
+        return Filter::filters[name];
+    }
+
+    Filter::Filter(const std::string& _name)
+        : name(_name)
     {
         filters.insert({ name, this });
-        if (filt != nullptr)
-        {
-            main_ = filt;
-        }
-        else
-        {
-            main_ = &def_filter;
-        }
-    }
-
-    Filter::~Filter()
-    {
-        filters.erase(name);
     }
 
     bool Filter::operator()(Record& rcd) const
