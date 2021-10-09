@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+
 add_library(X-Log INTERFACE)
 add_library(X-Log::X-Log ALIAS X-Log)
 
@@ -38,8 +39,13 @@ target_link_libraries(X-Log INTERFACE
 )
 
 
-include(CMakePackageConfigHelpers)
-install(TARGETS X-Log EXPORT X-LogTargets)
+install(TARGETS X-Log
+    EXPORT X-LogTargets
+    COMPONENTS
+        object_config
+        json_config
+)
+
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inc/ DESTINATION include)
 
 install(EXPORT X-LogTargets
