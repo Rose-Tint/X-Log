@@ -13,43 +13,40 @@ namespace xlog
 
     class Filter final
     {
-        friend void make_filter(const std::string&);
-        friend Filter& get_filter(const std::string&);
-        friend Filter& find_filter(const std::string&);
+        friend Filter& get_filter(const std::string&); // done
+        friend const Filter& find_filter(const std::string&);
 
         static lookup_map<Filter> filters;
 
+        // becomes usable when it gets a name to make
+        // unusable when defaut constructed
+        bool usable = false;
         std::string name;
         pre_filter_f pre = nullptr;
         filter_f main_ = def_filter;
         post_filter_f post = nullptr;
 
         Filter() = default;
-        explicit Filter(const std::string&);
-        Filter(Filter&&) = delete;
         Filter& operator=(Filter&&) = default;
-        Filter(const Filter&) = delete;
         Filter& operator=(const Filter&) = default;
 
+        // deleted because filters should not be copied or
+        // moved outside of the lookup map
+        Filter(Filter&&) = delete;
+        Filter(const Filter&) = delete;
+
       public:
+        Filter(const std::string&); // done
+
         static bool def_filter(const Record&) { return true; }
 
-        void set_pre(pre_filter_f pref) { pre = pref; }
+        void set_prefilter(pre_filter_f pref) { pre = pref; }
         void set(filter_f filt) { main_ = filt; }
-        void set_post(post_filter_f postf) { post = postf; }
-
-        void rm_pre() { pre = nullptr; }
-        void reset_main() { main_ = [](const Record&){ return true; }; }
-        void rm_post() { post = nullptr; }
-        void reset() { rm_pre(); reset_main(); rm_post(); }
+        void set_postfilter(post_filter_f postf) { post = postf; }
 
         bool operator()(Record&) const;
         const std::string& get_name() const { return name; }
     };
-
-    void make_filter(const std::string&);
-    Filter& get_filter(const std::string&);
-    Filter& find_filter(const std::string&);
 }
 
 #endif

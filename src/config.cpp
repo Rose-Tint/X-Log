@@ -1,11 +1,18 @@
 #include "config.hpp"
 
+#ifndef X_LOG_CONFIG_COMPONENT_YAML
+#define X_LOG_CONFIG_COMPONENT_YAML
 
-namespace xlog
-{
-    template<class ConfigType>
-    void config(const ConfigType&)
-    {
-        ;// throw...
-    }
-}
+#endif
+
+
+#ifndef X_LOG_CONFIG_COMPONENT_JSON
+#define X_LOG_CONFIG_COMPONENT_JSON
+
+#endif
+
+
+#ifndef X_LOG_CONFIG_COMPONENT_
+#define X_LOG_CONFIG_COMPONENT_
+
+#endif

@@ -4,20 +4,52 @@
 
 #if __cplusplus > 201703L
 #include <version>
-#ifndef CPP20
-#define CPP20
-#endif
+#  ifndef CPP20
+#    define CPP20
+#  endif
+#  ifndef LIKELY
+#    define LIKELY [[likely]]
+#  endif
+#  ifndef UNLIKELY
+#    define UNLIKELY [[unlikely]]
+#  endif
+#  ifndef FALLTHROUGH
+#    define FALLTHROUGH [[fallthrough]]
+#  endif
+   // if there is c++20 support, use jthread because jthread is safer
+   namespace xlog { typedef std::jthread thread_t; }
+#else
+#  ifndef LIKELY
+#    define LIKELY
+#  endif
+#  ifndef UNLIKELY
+#    define UNLIKELY
+#  endif
+#  ifndef FALLTHROUGH
+#    define FALLTHROUGH
+#  endif
+#  ifndef consteval
+#    define consteval constexpr
+#  endif
+   namespace xlog { typedef std::thread thread_t; }
 #endif
 
 #include <exception>
+#include <stdexcept>
+
 #include <ctime>
+#include <memory>
+#include <cctype>
+#include <type_traits>
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <stack>
 #include <initializer_list>
 
 #include <thread>
@@ -61,59 +93,76 @@
 #endif
 
 
-#ifdef CPP20
-#  ifndef LIKELY
-#    define LIKELY [[likely]]
-#  endif
-#  ifndef UNLIKELY
-#    define UNLIKELY [[unlikely]]
-#  endif
-#else
-#  ifndef LIKELY
-#    define LIKELY
-#  endif
-#  ifndef UNLIKELY
-#    define UNLIKELY
-#  endif
-#  ifndef consteval
-#    define consteval constexpr
-#  endif
-#endif
-
-
 namespace xlog
 {
-    template<typename T>
+    template<class T>
+    using uptr_t = std::unique_ptr<T>;
+    template<class T>
     using ilist = const std::initializer_list<T>&;
-    template<typename T>
+    template<class T>
     using str_umap = std::unordered_map<std::string, T>;
-    template<typename T>
-    using lookup_map = std::unordered_map<std::string, std::unique_ptr<T>>;
+    template<class T>
+    using lookup_map = std::unordered_map<std::string, uptr_t<T>>;
 
+
+    typedef unsigned long long ullong;
+    typedef unsigned long ulong;
+    typedef unsigned int uint;
+    typedef unsigned short ushort;
+    typedef unsigned char uchar;
     typedef std::unordered_set<std::string> str_uset_t;
     typedef str_umap<std::string> arg_map_t;
     typedef std::pair<std::string, std::string> str_pair_t;
     typedef std::streambuf* buffer_t;
     typedef std::filebuf* fbuffer_t;
-    typedef unsigned int uint;
-    typedef unsigned char uchar;
-
-// if there is c++20 support, use jthread because jthread is safer
-#ifdef CPP20
-    typedef std::jthread thread_t;
-#else
-    typedef std::thread thread_t;
-#endif
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
+
     class Logger;
-    class Format;
-    class Error;
     class Handler;
+    class Format;
+    class Filter;
+    class Error;
     class LogStream;
     class Record;
+    namespace config
+    {
+        class Object;
+    }
+
+
+    extern Logger& root;
+    extern Handler& stdhdlr;
+    extern Format& stdfmt;
+    extern Filter& stdfilt;
+
+
+    Logger& get_logger();
+    Logger& get_logger(const std::string&);
+    const Logger& find_logger();
+    const Logger& find_logger(const std::string&);
+
+    Handler& get_handler();
+    Handler& get_handler(const std::string&);
+    const Handler& find_handler();
+    const Handler& find_handler(const std::string&);
+
+    Format& get_format();
+    Format& get_format(const std::string&);
+    const Format& find_format();
+    const Format& find_format(const std::string&);
+
+    Filter& get_filter();
+    Filter& get_filter(const std::string&);
+    const Filter& find_filter();
+    const Filter& find_filter(const std::string&);
+
+
+    typedef void (*pre_filter_f)(Record&);
+    typedef bool (*filter_f)(const Record&);
+    typedef void (*post_filter_f)(Record&);
 }
 
 #endif

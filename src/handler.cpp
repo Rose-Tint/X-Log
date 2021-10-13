@@ -3,65 +3,39 @@
 
 namespace xlog
 {
-    void make_handler(const std::string name)
+    Handler& get_handler()
     {
-        if (Handler::handlers.count(name) != 0)
-            ;// throw...
-        auto& hdlr = Handler(name);
+        return stdhdlr;
     }
 
     Handler& get_handler(const std::string& name)
     {
-        if (name == "")
-            return find_handler("std");
+        if (name == "" || name == "std")
+            return stdhdlr;
         if (Handler::handlers.count(name) == 0)
-            make_handler(name);
-        return find_handler(name);
+            Handler(name);
+        return Handler::handlers.at(name);
     }
 
-    Handler& find_handler(const std::string& name)
+    const Handler& find_handler()
     {
-        if (Handler::handlers.count(name) == 0)
-            ;//throw...
-        return Handler::handlers[name];
+        return stdhdlr;
     }
 
-    Handler::Handler(const std::string& _name)
-        : name(_name)
+    const Handler& find_handler(const std::string& name)
+    {
+        if (name == "" || name == "std")
+            return stdhdlr;
+        auto iter = Handler::handlers.find(name);
+        if (iter = Handler::handlers.end())
+            ;// throw...
+        return iter->second;
+    }
+
+    Handler::Handler(const std::string& name)
+        : name(name), usable(true)
     {
         handlers.insert({ name, this });
-    }
-
-    Handler& Handler::operator=(Handler&& other)
-    {
-        if (this == &other) return *this;
-        name = std::move(other.name);
-        filter_name = std::move(other.filter_name);
-        lstream = std::move(other.lstream);
-        min = std::move(other.min);
-        max = std::move(other.max);
-        return *this;
-    }
-
-    Handler::Handler(Handler&& other)
-    {
-        name = std::move(other.name);
-        filter_name = std::move(other.filter_name);
-        lstream = std::move(other.lstream);
-        min = std::move(other.min);
-        max = std::move(other.max);
-    }
-
-    Handler::~Handler()
-    {
-        handlers.erase(name);
-    }
-
-    bool Handler::handle(Record& rcd)
-    {
-        if (!filter()(rcd)) return false;
-        lstream.write(rcd.get_msg());
-        return true;
     }
 
     Handler& Handler::set_min(uchar mn)
@@ -75,6 +49,12 @@ namespace xlog
     {
         if (mx < min) std::swap(mx, min);
         max = mx;
+        return *this;
+    }
+
+    Handler& Handler::set_filter(const std::string& fmt_name)
+    {
+        format_name = fmt_name;
         return *this;
     }
 
@@ -100,18 +80,21 @@ namespace xlog
     Handler& Handler::add_buffers(ilist<buffer_t> bufs)
     {
         for (buffer_t buf : bufs)
-        {
             add_buffer(buf);
-        }
         return *this;
     }
 
     Handler& Handler::add_files(ilist<fs::path> paths)
     {
         for (fs::path path : paths)
-        {
             add_file(path);
-        }
         return *this;
+    }
+
+    bool Handler::handle(Record& rcd)
+    {
+        if (!filter()(rcd)) return false;
+        lstream.write(rcd.get_msg());
+        return true;
     }
 }

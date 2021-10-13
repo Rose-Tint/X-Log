@@ -3,32 +3,40 @@
 
 namespace xlog
 {
-    void make_logger(const std::string name)
+    Logger& get_logger(const std::string& name)
     {
-        if (Logger::loggers.count(name) != 0)
-            ;// throw...
-        auto& lgr = Logger(name);
+        return root;
     }
 
     Logger& get_logger(const std::string& name)
     {
-        if (name == "")
-            return find_logger("std");
+        if (name == "" || name == "root")
+            return root;
         if (Logger::loggers.count(name) == 0)
-            make_logger(name);
-        return find_logger(name);
+            Logger(name);
+        return Logger::loggers.at(name);
     }
 
-    Logger& find_logger(const std::string& name)
+    const Logger& find_logger()
     {
-        if (Logger::loggers.count(name) == 0)
+        return root;
+    }
+
+    const Logger& find_logger(const std::string& name)
+    {
+        if (name == "" || name == "root")
+            return root;
+        auto iter = Logger::loggers.find(name);
+        if (iter == Logger::loggers.end())
             ;//throw...
-        return Logger::loggers[name];
+        return iter->second;
     }
 
     Logger::Logger(const std::string& nm)
-        : name(nm)
+        : name(nm), usable(true)
     {
+        if (loggers.count(name))
+            ;// throw...
         loggers.insert({ name, this });
     }
 
@@ -37,7 +45,7 @@ namespace xlog
         std::vector<Handler*> valids;
         for (const std::string& hname : handler_names)
         {
-            Handler& handler = xlog::get_handler(hname);
+            Handler& handler = get_handler(hname);
             if (handler.get_min() < lvl && lvl < handler.get_max())
             {
                 valids.push_back(&handler);
@@ -52,39 +60,24 @@ namespace xlog
         return *this;
     }
 
-    Logger& Logger::add_handler(const Handler& handler)
-    {
-        handler_names.push_back(handler.get_name());
-        return *this;
-    }
-
-    Logger& Logger::add_handlers(ilist<Handler> handlers)
-    {
-        for (const Handler& handler : handlers) add_handler(handler.get_name());
-        return *this;
-    }
-
     Logger& Logger::add_handlers(ilist<std::string> handlers)
     {
         for (std::string hname : handlers) add_handler(hname);
         return *this;
     }
 
-    void Logger::add_ext(std::string ext)
+    Logger& Logger::set_filter(const std::string& handler_name)
     {
-        if (ext[0] != '.') ext.insert(0, 1, '.');
-        log_exts.insert(ext);
-    }
-
-    void Logger::add_exts(ilist<std::string> exts)
-    {
-        for (const std::string& ext : exts) add_ext(ext);
+        filter_name = handler_name;
+        return *this;
     }
 
     void Logger::log(const std::string& msg, const uchar& lvl, Record rcd)
     {
-        rcd.init_rest(msg, name, lvl);
-        auto& valid_handlers = handlers(lvl);
+        rcd.msg = msg;
+        rcd.lgr = lgr;
+        rcd.lvl = lvl;
+        auto valid_handlers = handlers(lvl);
         for (Handler* h_ptr : valid_handlers)
         {
             h_ptr->handle(rcd);

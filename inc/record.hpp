@@ -10,12 +10,10 @@ namespace xlog
     {
         friend class Logger;
 
-        // set to default because Logger will set them after construction
+        // set to default because Logger will set them post construction
         std::string msg = "";
         std::string lgr = "";
         uchar lvl = 0;
-        // sets msg, lgr, and lvl by Logger
-        void init_rest(const std::string&, const std::string&, const uchar&);
 
         // set by ctr
         std::string func;
@@ -24,11 +22,7 @@ namespace xlog
         arg_map_t args;
 
       public:
-        Record(const std::string&, const uint&, str_pair_t = { });
         Record(const std::string&, const uint&, const std::string, str_pair_t = { });
-
-        Record(Record&&) = default;
-        Record& operator=(Record&&) = default;
 
         // observers
         const std::string& get_msg() const { return msg; }
@@ -42,14 +36,14 @@ namespace xlog
 
 #ifdef CPP20
         Record(const std::source_location&, const arg_map_t&);
-#ifndef MAKE_RCD
-#define MAKE_RCD(...) xlog::Record(std::source_location::current())
-#endif
 #endif
     };
 }
 
 #ifndef MAKE_RCD
+#ifdef CPP20
+#define MAKE_RCD(...) xlog::Record(std::source_location::current())
+#endif
 #define MAKE_RCD(...) xlog::Record( __FILE__, __LINE__, { __VA_ARGS__ } )
 #endif
 
