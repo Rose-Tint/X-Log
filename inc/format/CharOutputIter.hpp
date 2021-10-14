@@ -17,6 +17,7 @@ namespace xlog
         CharOutputIter& operator++();
     };
 
+    template<>
     struct std::iterator_traits<CharOutputIter>
     {
         typedef char_t value_type;
