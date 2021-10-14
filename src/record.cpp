@@ -6,16 +6,6 @@ namespace xlog
     Recod::Record(const std::string& fl, const uchar& ln, const std::string fn, str_pair_t arg_pairs)
         : file(fl), line(ln), func(fn), args(arg_pairs.begin(), arg_pairs.end()) { }
 
-    Record::Record(const std::string& fl, const uchar& ln, str_pair_t arg_pairs)
-        : file(fl), line(ln), func("unavailable"), args(arg_pairs.begin(), arg_pairs.end()) { }
-
-    void Record::init_rest(const std::string& message, const std::string& lname, const uchar& level)
-    {
-        msg = message;
-        lgr = lname;
-        lvl = level;
-    }
-
     arg_map_t Record::get_dict() const
     {
         arg_map_t dict
@@ -37,5 +27,4 @@ namespace xlog
           func(info.function_name()),
           args(arg_pairs.begin(), arg_pairs.end()) { }
 #endif
-
 }

@@ -3,40 +3,54 @@
 
 namespace xlog
 {
-    void make_filter(const std::string name)
+    Filter& get_filter()
     {
-        if (Filter::filters.count(name) != 0)
-            ;// throw...
-        auto& filt = Filter(name);
+        return stdfilt;
     }
 
     Filter& get_filter(const std::string& name)
     {
-        if (name == "")
-            return find_filter("std");
-        if (Filter::filters.count(name) == 0)
-            make_filter(name);
-        return find_filter(name);
+        if (name == "" || name == "std")
+            return stdfilt;
+        auto iter = Filter::filters.find(name);
+        if (iter == Filter::filters.end())
+            Filter(name);
+        return iter->second;
     }
 
-    Filter& find_filter(const std::string& name)
+    const Filter& find_filter()
     {
-        if (Filter::filters.count(name) == 0)
-            ;//throw...
-        return Filter::filters[name];
+        return stdfilt;
     }
 
-    Filter::Filter(const std::string& _name)
-        : name(_name)
+    const Filter& find_filter(const std::string& name)
     {
+        if (name == "" || name == "std")
+            return stdfilt;
+        auto iter = Filter::filters.find(name);
+        if (iter == Filter::filters.end())
+            ;// throw...
+        return iter->second;
+    }
+
+    Filter::Filter(const std::string name)
+        : name(name), usable(true)
+    {
+        if (filters.count(name) != 0)
+            ;// throw
         filters.insert({ name, this });
     }
 
     bool Filter::operator()(Record& rcd) const
     {
-        if (pre != nullptr) pre(rcd);
-        if (!main_(rcd)) return false;
-        if (post != nullptr) post(rcd);
-        return true;
+        bool pass_filter;
+        if (pre != nullptr)
+            pre(rcd);
+        pass_filter = main_(rcd)
+        if (pass_filter)
+            return false;
+        if (post != nullptr)
+            post(rcd);
+        return pass_filter;
     }
 }

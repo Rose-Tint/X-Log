@@ -13,47 +13,46 @@ namespace xlog
     {
         std::string time;
         std::string date;
-        std::string date_time = std::string();
-        std::string get_dtime() const;
+        std::string datetime = "";
+        std::string get_dtime() const; // done
     };
 
     class Format final
     {
-        friend void make_format(const std::string&);
-        friend Format& get_format(const std::string&);
-        friend Format& find_format(const std::string&);
+        friend Format& get_format(const std::string&); // done
+        friend const Format& find_format(const std::string&);
 
         static lookup_map<Format> formats;
 
+        // becomes usable when it gets a name to make
+        // unusable when defaut constructed
+        bool usable = false;
         std::string name;
         DateTimeFormat dt_fmt = def_dtf;
         std::string fmt = def_fmt;
 
-        arg_map_t get_args(const Record&) const;
+        arg_map_t get_args(const Record&) const; // done
 
         Format() = default;
-        explicit Format(const std::string&);
-        Format(Format&&) = delete;
         Format& operator=(Format&&) = default;
-        Format(const Format&) = delete;
         Format& operator=(const Format&) = default;
+        Format(Format&&) = default;
+        Format(const Format&) = default;
 
       public:
+        explicit Format(const std::string&); // done
+
         static inline const DateTimeFormat def_dtf = { "H:m:S:s", "Y/M/D", "H:m:S:s - Y/M/D" }
         static inline const std::string def_fmt = "${date} | ${file} - line ${line}:\n -- ${msg}";
 
-        std::string operator()(const Record&) const;
-        const std::string& get_name() const { return name; }
+        std::string operator()(const Record&) const; // done?
+        const std::string& get_name() const; // done
 
-        void set_fmt(const std::string& format) { fmt = format; };
-        void set_time_fmt(const std::string& tfmt) { dt_fmt.time = tfmt; };
-        void set_date_fmt(const std::string& tfmt) { dt_fmt.date = tfmt; };
-        void set_dtime_fmt(const std::string& tfmt) { dt_fmt.date_time = tfmt; };
+        void set_fmt(const std::string& format); // done
+        void set_time(const std::string& tfmt); // done
+        void set_date(const std::string& tfmt); // done
+        void set_dtime(const std::string& tfmt); // done
     };
-
-    void make_format(const std::string&);
-    Format& get_format(const std::string&);
-    Format& find_format(const std::string&);
 }
 
 #endif

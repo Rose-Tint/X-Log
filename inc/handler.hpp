@@ -11,47 +11,47 @@ namespace xlog
 {
     class Handler final
     {
-        friend void make_handler(const std::string&);
         friend Handler& get_handler(const std::string&);
-        friend Handler& find_handler(const std::string&);
+        friend const Handler& find_handler(const std::string&);
 
         static lookup_map<Handler> handlers;
 
+        // becomes usable when it gets a name to make
+        // unusable when defaut constructed
+        bool usable = false;
         std::string name;
+        std::string format_name = "std";
         std::string filter_name = "std";
-        LogStream lstream;
+        LogStream lstream = { };
         uchar min = 0;
         uchar max = -1;
-        const Filter& filter() { return xlog::get_filter(filter_name); }
+        const Filter& filter() { return get_filter(filter_name); }
 
         Handler() = default;
-        Handler(const std::string&);
-        Handler(Handler&&) = delete;
         Handler& operator=(Handler&&) = default;
-        Handler(const Handler&) = delete;
         Handler& operator=(const Handler&) = default;
 
+        // deleted because handlers should not be copied or
+        // moved outside of the lookup map
+        Handler(Handler&&) = delete;
+        Handler(const Handler&) = delete;
+
       public:
-        const uchar get_min() const { return min; }
+        Handler(const std::string&);
+
+        Handler& set_min(uchar); // done
+        Handler& set_max(uchar); // done
+        Handler& set_format(const std::string&); // done
+        Handler& set_filter(const std::string&); // done
+        Handler& add_buffer(buffer_t); // done
+        Handler& add_file(const fs::path&); // done
+        Handler& add_buffers(ilist<buffer_t>); // done
+        Handler& add_files(ilist<fs::path>); // done
+        bool handle(Record&) const; // dpme
+        const uchar& get_min() const { return min; }
         const uchar& get_max() const { return max; }
-
-        // returns `*this` so that users can do things like
-        // `Handler hdler = Handler(0).add_buffer(std::cout.rdbuf());`
-        Handler& set_min(uchar);
-        Handler& set_max(uchar);
-        Handler& set_filter(const std::string&);
-        Handler& add_buffer(buffer_t);
-        Handler& add_file(const fs::path&);
-        Handler& add_buffers(ilist<buffer_t>);
-        Handler& add_files(ilist<fs::path>);
-
-        bool handle(Record&);
         const std::string& get_name() const { return name; }
     };
-
-    void make_handler(const std::string&);
-    Handler& get_handler(const std::string&);
-    Handler& find_handler(const std::string&);
 }
 
 #endif
