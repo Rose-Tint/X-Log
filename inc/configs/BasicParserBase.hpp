@@ -1,18 +1,16 @@
-#ifndef X_LOG_CONFIGS_HPP
-#define X_LOG_CONFIGS_HPP
+#ifndef X_LOG_CONFIGS_BASICPARSERBASE_HPP
+#define X_LOG_CONFIGS_BASICPARSERBASE_HPP
 
 #include "fwd_declares.hpp"
 
 
-namespace xlog::config
+namespace xlog::cnfg
 {
-    template<class char_t>
-    class BasicParserBase
+    class ParserBase
     {
       protected:
-        typedef std::char_traits<char_t> Traits;
+        typedef std::char_traits<char> Traits;
         typedef uchar flags_base_t;
-        typedef std::basic_string<char_t> string_t;
 
         enum Flags_e : flags_base_t
         {
@@ -26,10 +24,10 @@ namespace xlog::config
 
         struct Seek
         {
-            char_t curr = 0;
+            char curr = 0;
             ushort line = 0;
             uchar column = 0;
-            void inc(char_t);
+            void inc(char);
         };
 
         friend inline Flags_e operator ~ (const Flags_e& flg)
@@ -47,23 +45,23 @@ namespace xlog::config
         friend inline Flags_e operator ^= (Flags_e& lhs, Flags_e rhs)
             { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) ^ static_cast<flags_base_t>(rhs)); }
 
-        std::basic_ifstream<char_t> file;
+        std::basic_ifstream<char> file;
         Flags_e flags;
         Seek seek;
         uchar scope;
-        char_t stmt_delim;
+        char stmt_delim;
 
-        char_t get();
-        string_t get_word(); // skips non alpha chars
-        string_t get_until(char_t);
-        string_t get_until(const string_t&);
-        string_t get_through(const string_t&);
-        string_t get_statement();
+        char get();
+        std::string get_word(); // skips non alpha chars
+        std::string get_until(char);
+        std::string get_until(const std::string&);
+        std::string get_through(const std::string&);
+        std::string get_statement();
 
-        bool get(char_t&);
+        bool get(char&);
 
       public:
-        explicit BasicParserBase(const fs::path& path, char_t line_end_char)
+        explicit ParserBase(const fs::path& path, char line_end_char)
             : file(path), stmt_delim(line_end_char) { }
 
         inline bool eol(void) const { return flags & EOL; }
@@ -80,13 +78,10 @@ namespace xlog::config
         inline void exp_new_scope(bool val) { flags |= (val) ? EXP_NEW_SCOPE : flags; }
     };
 
-    typedef BasicParserBase<char> ParserBase;
-    typedef BasicParserBase<wchar_t> wParserBase;
-
-    template<class char_t> inline BasicParserBase<char_t>::Flags_e operator ! (const BasicParserBase<char_t>::Flags_e&);
-    template<class char_t> inline BasicParserBase<char_t>::Flags_e operator | (const BasicParserBase<char_t>::Flags_e&, const BasicParserBase<char_t>::Flags_e&);
-    template<class char_t> inline BasicParserBase<char_t>::Flags_e operator & (const BasicParserBase<char_t>::Flags_e&, const BasicParserBase<char_t>::Flags_e&);
-    template<class char_t> inline BasicParserBase<char_t>::Flags_e operator ^ (const BasicParserBase<char_t>::Flags_e&, const BasicParserBase<char_t>::Flags_e&);
+    inline ParserBase::Flags_e operator ! (const ParserBase::Flags_e&);
+    inline ParserBase::Flags_e operator | (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
+    inline ParserBase::Flags_e operator & (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
+    inline ParserBase::Flags_e operator ^ (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
 }
 
 #endif

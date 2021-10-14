@@ -2,19 +2,18 @@
 #define X_LOG_CONFIGS_HPP
 
 #include "fwd_declares.hpp"
-#include "../../inc/configs/configtype.hpp"
-#include "../../inc/configs/basicparserbase.hpp"
-#include "utils.hpp"
+#include "config.hpp"
+#include "configs/TypeConfigItf.hpp"
+#include "configs/ParserBase.hpp"
 
 
-namespace xlog::config
+namespace xlog::cnfg
 {
-    template<class char_t>
-    class Yaml : public BasicParserBase<char_t>, ConfigType
+    class Yaml : public ParserBase, ConfigType
     {
         typedef str_umap<YamlType> _Map;
         typedef std::vector<YamlType> _Array;
-        typedef string_t _String;
+        typedef std::string _String;
 
         struct YamlType
         {
@@ -77,6 +76,8 @@ namespace xlog::config
       public:
         explicit Yaml(const fs::path&);
     };
+
+    void config_yaml(const fs::path&);
 }
 
 #endif

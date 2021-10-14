@@ -1,44 +1,36 @@
-#include "../../inc/configs/basicparserbase.hpp"
-#include <cctype>
-
-typedef unsigned char uchar;
+#include "configs/BasicParserBase.hpp"
 
 
-namespace xlog::config
+namespace xlog::cnfg
 {
-    template<class char_t>
-    char_t BasicParserBase<char_t>::get()
+    char BasicParserBase::get()
     {
-        char_t c;
+        char c;
         get(c);
         return c;
     }
 
-    template<class char_t>
-    bool BasicParserBase<char_t>::get(char_t& c)
+    bool BasicParserBase::get(char& c)
     {
         newline(eol());
         file.get(c);
-        eol(c == stmt_delim);
+        eol(Traits::eq(c, stmt_delim));
         eof(file.eof());
         seek.inc(c);
         return (bool)file;
     }
 
-    template<class char_t>
-    void BasicParserBase<char_t>::Seek::inc(char_t c)
+    void BasicParserBase::Seek::inc(char c)
     {
         curr = c;
-        const bool newl = ;
-        line += (c == stmt_delim);
-        column = ((c != stmt_delim) * (column + 1));
+        line += Traits::eq(c, stmt_delim);
+        column = (!Traits::eq(c, stmt_delim) * (column + 1));
     }
 
-    template<class char_t> typename
-    BasicParserBase<char_t>::string_t BasicParserBase<char_t>::get_word()
+    std::string BasicParserBase::get_word()
     {
         char c = 0;
-        string_t word;
+        std::string word;
         bool read = false;
         bool is_space = true;
         while (get(c))
@@ -55,45 +47,31 @@ namespace xlog::config
         return word;
     }
 
-    template<class char_t> typename
-    BasicParserBase<char_t>::string_t BasicParserBase<char_t>::get_until(char_t delim)
+    std::string BasicParserBase::get_until(char delim)
     {
         char c = 0;
-        string_t str;
+        std::string str;
         while (get(c))
         {
-            if (c == delim)
+            if (Traits::eq(c, delim))
                 break;
             str.append(1, c);
         }
         return str;
     }
 
-    template<class char_t> typename
-    BasicParserBase<char_t>::string_t BasicParserBase<char_t>::get_until(const string_t& delim_s)
+    std::string BasicParserBase::get_until(const std::string& delim_s)
     {
-        const std::size_t d_size = delim_s.size();
-        std::size_t cmp_idx = 0;
-        char c = 0;
-        string_t str;
-        str.reserve(d_size);
-        while (get(c))
-        {
-            cmp_idx = (str.size() < d_size) ? str.size() : str.size() - d_size;
-            if (str.substr(cmp_idx, d_size) == delim_s)
-                break;
-            str.append(1, c);
-        }
-        return str.substr(0, cmp_idx);
+        std::string str = get_through(delim_s);
+        return str.substr(0, str.size() - delim_s.size());
     }
 
-    template<class char_t> typename
-    BasicParserBase<char_t>::string_t BasicParserBase<char_t>::get_through(const string_t& delim_s)
+    std::string BasicParserBase::get_through(const std::string& delim_s)
     {
         const std::size_t d_size = delim_s.size();
         std::size_t cmp_idx = 0;
         char c = 0;
-        string_t str;
+        std::string str;
         str.reserve(d_size);
         while (get(c))
         {
@@ -105,16 +83,15 @@ namespace xlog::config
         return str;
     }
 
-    template<class char_t> typename
-    BasicParserBase<char_t>::string_t BasicParserBase<char_t>::get_statement()
+    std::string BasicParserBase::get_statement()
     {
         char c = 0;
-        string_t stmt;
+        std::string stmt;
         bool read = false;
         bool not_new_stmt = false;
         while (get(c))
         {
-            not_new_stmt = (c != stmt_delim);
+            not_new_stmt = !Traits::eq(c, stmt_delim);
             if (read)
             {
                 if (not_new_stmt)

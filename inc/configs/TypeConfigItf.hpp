@@ -1,10 +1,10 @@
-#ifndef X_LOG_CONFIGS_CONFIG_TYPES_HPP
-#define X_LOG_CONFIGS_CONFIG_TYPES_HPP
+#ifndef X_LOG_CONFIGS_TYPECONFIGITF_HPP
+#define X_LOG_CONFIGS_TYPECONFIGITF_HPP
 
 #include "fwd_declares.hpp"
 
 
-namespace xlog::config
+namespace xlog::cnfg
 {
     struct TypeConfigItfBase
     {

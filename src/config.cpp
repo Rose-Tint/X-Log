@@ -1,18 +1,13 @@
 #include "config.hpp"
 
-#ifndef X_LOG_CONFIG_COMPONENT_YAML
-#define X_LOG_CONFIG_COMPONENT_YAML
-
+namespace xlog
+{
+    void config(const fs::path& path)
+    {
+        std::string ext = path.extension();
+#ifdef X_LOG_CONFIGS_YAML_HPP
+        if (ext == ".yaml" || ext == ".yml")
+            cnfg::config_yaml(path);
 #endif
-
-
-#ifndef X_LOG_CONFIG_COMPONENT_JSON
-#define X_LOG_CONFIG_COMPONENT_JSON
-
-#endif
-
-
-#ifndef X_LOG_CONFIG_COMPONENT_
-#define X_LOG_CONFIG_COMPONENT_
-
-#endif
+    }
+}

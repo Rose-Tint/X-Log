@@ -4,7 +4,8 @@
 
 namespace xlog
 {
-    ;
+    void config_yaml(const fs::path&);
+    void config(const fs::path&);
 }
 
 #endif

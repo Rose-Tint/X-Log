@@ -7,7 +7,7 @@
 // IN THE MIDDLE OF BEGINNING TO USE std::char_traits
 
 
-namespace xlog::config
+namespace xlog::cnfg
 {
     template<class char_t>
     Yaml<char_t>::Yaml(const fs::path& path) : BasicParserBase(path, '\n')
@@ -161,14 +161,14 @@ namespace xlog::config
     uchar Yaml<char_t>::parse_indent()
     {
         uchar beginning_scope = scope;
-        if (file.peek() != ' ')
+        if (Traits::eq(seek.curr, ' '))
             return scope;
         else while (get(c))
         {
             // use if-else over switch to be allowed to break the loop
-            if (c == ' ')
+            if (Traits::eq(c, ' '))
                 add_idt_space(c);
-            else if (c == '\n')
+            else if (Traits::eq(c, '\n'))
                 end_of_line();
             else break;
         }
@@ -197,13 +197,13 @@ namespace xlog::config
             key = get_key();
             if (key.size() == 0)
                 ;// throw...
-            if (seek.curr == '\n' || eol())
+            if (Traits::eq(seek.curr, '\n') || eol())
                 exp_new_scope(true);
             else
             {
                 val = get_statement();
                 utils::trim(val, ' ');
-                if (val.front() == '{' && val.back() == '}')
+                if (Traits::eq(val.front(), '{') && Traits::eq(val.back(), '}'))
                     type = YamlType::BLOCK_MAP;
                 else type = YamlType::STRING;
             }
@@ -232,14 +232,14 @@ namespace xlog::config
             new_scope = parse_indent();
             if (beg_scope >= new_scope)
                 break;
-            if (seek.curr != '-')
+            if (Traits::eq(seek.curr, '-'))
                 ;// throw...
             val = get_statement();
             utils::trim(val, ' ');
 
             if (val.size() == 0)
                 ;// throw...
-            if (val.front() == '-')
+            if (Traits::eq(val.front(), '-'))
             {
                 type = YamlType::ARRAY;
                 value = _Array();
@@ -250,18 +250,13 @@ namespace xlog::config
                 array_v.array.push_back(value);
                 continue;
             }
-            else if (val.front() == '[' && val.back() == ']')
-            {
+            else if (Traits::eq(val.front(), '[') && Traits::eq(val.back(), ']'))
                 type = YamlType::BLOCK_ARRAY;
-            }
-            else if (val.front() == '{' || val.back() == '}')
-            {
+            else if (Traits::eq(val.front(), '{') || Traits::eq(val.back(), '}'))
                 type = YamlType::BLOCK_MAP;
-            }
-            else if (val.back() == ':')
-            {
+            else if (Traits::eq(val.back(), ':'))
                 type = YamlType::MAP;
-            }
+
             else type = YamlType::STRING;
             extract_value(value);
             array_v.array.push_back(value);
@@ -311,9 +306,9 @@ namespace xlog::config
         key.clear();
         while (get(c))
         {
-            if (c == ':')
+            if (Traits::eq(c, ':'))
                 break;
-            else if (c == '\n')
+            else if (Traits::eq(c, '\n'))
             {
                 end_of_line();
                 file.unget();
