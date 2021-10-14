@@ -9,7 +9,7 @@ namespace xlog::cnfg
     class ParserBase
     {
       protected:
-        typedef std::char_traits<char> Traits;
+        typedef std::char_traits<char_t> Traits;
         typedef uchar flags_base_t;
 
         enum Flags_e : flags_base_t
@@ -24,10 +24,10 @@ namespace xlog::cnfg
 
         struct Seek
         {
-            char curr = 0;
+            char_t curr = 0;
             ushort line = 0;
             uchar column = 0;
-            void inc(char);
+            void inc(char_t);
         };
 
         friend inline Flags_e operator ~ (const Flags_e& flg)
@@ -45,23 +45,23 @@ namespace xlog::cnfg
         friend inline Flags_e operator ^= (Flags_e& lhs, Flags_e rhs)
             { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) ^ static_cast<flags_base_t>(rhs)); }
 
-        std::basic_ifstream<char> file;
+        std::basic_ifstream<char_t> file;
         Flags_e flags;
         Seek seek;
         uchar scope;
-        char stmt_delim;
+        char_t stmt_delim;
 
-        char get();
+        char_t get();
         std::string get_word(); // skips non alpha chars
-        std::string get_until(char);
+        std::string get_until(char_t);
         std::string get_until(const std::string&);
         std::string get_through(const std::string&);
         std::string get_statement();
 
-        bool get(char&);
+        bool get(char_t&);
 
       public:
-        explicit ParserBase(const fs::path& path, char line_end_char)
+        explicit ParserBase(const fs::path& path, char_t line_end_char)
             : file(path), stmt_delim(line_end_char) { }
 
         inline bool eol(void) const { return flags & EOL; }

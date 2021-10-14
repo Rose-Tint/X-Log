@@ -149,7 +149,19 @@ namespace xlog
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
+
     typedef string_t (*var_fmt_f)(const Format&, const Record&);
+
+
+    namespace components
+    {
+        struct config
+        {
+            static constexpr bool json;
+            static constexpr bool yaml;
+            static constexpr bool object;
+        };
+    }
 
 
     class Logger;
@@ -167,20 +179,20 @@ namespace xlog
     namespace cnfg
     {
         class ParserBase;
-        class ConfigType
+        class ConfigTypeBase;
         class TypeConfigItfBase;
         class LoggerConfigItf;
         class HandlerConfigItf;
         class FilterConfigItf;
         class FormatConfigItf;
-        class Json;
         class Yaml;
+        class Json;
 
         void config_yaml(const fs::path&);
         void config_json(const fs::path&);
     }
     void config(const fs::path&);
-    DEPRECATED void config(const TypeConfigItfBase&);
+    DEPRECATED void config(const ConfigTypeBase&);
 
 
     extern Logger& root;
