@@ -3,41 +3,19 @@
 
 namespace xlog
 {
-    Filter& get_filter()
-    {
-        return stdfilt;
-    }
-
-    Filter& get_filter(const std::string& name)
+    Filter& get_filter() { return stdfilt; }
+    Filter& get_filter(const string_t& name)
     {
         if (name == "" || name == "std")
             return stdfilt;
-        auto iter = Filter::filters.find(name);
-        if (iter == Filter::filters.end())
+        if (!Filter::filters.count(name))
             Filter(name);
-        return iter->second;
+        return Filter::filters.at(name);
     }
 
-    const Filter& find_filter()
+    Filter::Filter(const string_t name)
+        : name(name)
     {
-        return stdfilt;
-    }
-
-    const Filter& find_filter(const std::string& name)
-    {
-        if (name == "" || name == "std")
-            return stdfilt;
-        auto iter = Filter::filters.find(name);
-        if (iter == Filter::filters.end())
-            ;// throw...
-        return iter->second;
-    }
-
-    Filter::Filter(const std::string name)
-        : name(name), usable(true)
-    {
-        if (filters.count(name) != 0)
-            ;// throw
         filters.insert({ name, this });
     }
 
