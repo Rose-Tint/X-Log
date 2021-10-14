@@ -8,8 +8,6 @@
 
 namespace xlog
 {
-    typedef string_t (*var_fmt_f)(const Format&, const Record&);
-
     class Format final
     {
         /*  named requirements goals:

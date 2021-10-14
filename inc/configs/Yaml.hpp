@@ -2,7 +2,6 @@
 #define X_LOG_CONFIGS_HPP
 
 #include "fwd_declares.hpp"
-#include "config.hpp"
 #include "configs/TypeConfigItf.hpp"
 #include "configs/ParserBase.hpp"
 
@@ -76,8 +75,6 @@ namespace xlog::cnfg
       public:
         explicit Yaml(const fs::path&);
     };
-
-    void config_yaml(const fs::path&);
 }
 
 #endif
