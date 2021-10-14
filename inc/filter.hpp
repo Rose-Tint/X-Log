@@ -18,24 +18,13 @@ namespace xlog
 
         static lookup_map<Filter> filters;
 
-        // becomes usable when it gets a name to make
-        // unusable when defaut constructed
-        bool usable = false;
         std::string name;
         pre_filter_f pre = nullptr;
         filter_f main_ = def_filter;
         post_filter_f post = nullptr;
 
-        Filter() = default;
-        Filter& operator=(Filter&&) = default;
-        Filter& operator=(const Filter&) = default;
-
-        // deleted because filters should not be copied or
-        // moved outside of the lookup map
-        Filter(Filter&&) = delete;
-        Filter(const Filter&) = delete;
-
       public:
+        Filter() = delete;
         Filter(const std::string&); // done
 
         static bool def_filter(const Record&) { return true; }

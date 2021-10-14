@@ -16,25 +16,14 @@ namespace xlog
 
         static lookup_map<Logger> loggers;
 
-        // becomes usable when it gets a name to make
-        // unusable when defaut constructed
-        bool usable = false;
         std::string name;
         std::string filter_name;
         std::vector<std::string> handler_names;
 
         std::vector<Handler*> handlers(const uchar&); // done
 
-        Logger() = default;
-        Logger& operator=(Logger&&) = default;
-        Logger& operator=(const Logger&) = default;
-
-        // deleted because loggers should not be copied or
-        // moved outside of the lookup map
-        Logger(Logger&&) = delete;
-        Logger(const Logger&) = delete;
-
       public:
+        Logger() = delete;
         Logger(const std::string&); // done
 
         static inline Format def_fmt = Format("std");

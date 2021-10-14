@@ -16,9 +16,6 @@ namespace xlog
 
         static lookup_map<Handler> handlers;
 
-        // becomes usable when it gets a name to make
-        // unusable when defaut constructed
-        bool usable = false;
         std::string name;
         std::string format_name = "std";
         std::string filter_name = "std";
@@ -27,16 +24,8 @@ namespace xlog
         uchar max = -1;
         const Filter& filter() { return get_filter(filter_name); }
 
-        Handler() = default;
-        Handler& operator=(Handler&&) = default;
-        Handler& operator=(const Handler&) = default;
-
-        // deleted because handlers should not be copied or
-        // moved outside of the lookup map
-        Handler(Handler&&) = delete;
-        Handler(const Handler&) = delete;
-
       public:
+        Handler() = delete;
         Handler(const std::string&);
 
         Handler& set_min(uchar); // done
