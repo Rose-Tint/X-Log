@@ -8,37 +8,45 @@ namespace xlog
     std::string DateTimeFormat::get_dtime() const
     {
         if (date_time.empty())
-        {
             return (date+" "+time);
-        }
-        else
-        {
-            return date_time;
-        }
+        else return date_time;
+    }
+    
+    Format& get_format()
+    {
+        return stdfmt;
     }
 
     Format& get_format(const std::string& name)
     {
-        if (name == "")
-        {
-            return *(Format::formats["std"]);
-        }
-        if (Format::formats.count(name) == 0)
-        {
-            // throw...
-        }
-        return *(Format::formats[name]);
+        if (name == "" || name == "std")
+            return stdfmt;
+        if (Format::formats.count(name))
+            Format(name);
+        return Format::formats.at(name);
     }
 
-    Format::Format(const std::string& _name, const std::string& format, const DateTimeFormat& dtf)
-        : name(_name), fmt(format), dt_fmt(dtf)
+    const Format& find_format()
     {
+        return stdfmt;
+    }
+
+    const Format& find_format(const std::string& name)
+    {
+        if (name == "" || name == "std")
+            return stdfmt;
+        auto iter = Format::formats.find(name);
+        if (iter == Format::formats.end())
+            ;// throw...
+        return iter->second;
+    }
+
+    Format::Format(const std::string& name)
+        : name(name), usable(true)
+    {
+        if (formats.count(name) != 0)
+            ;// throw
         formats.insert({ name, this });
-    }
-
-    Format::~Format()
-    {
-        formats.erase(name);
     }
 
     arg_map_t Format::get_args(const Record& rcd) const
@@ -50,6 +58,31 @@ namespace xlog
             { "dtime", dt_fmt.get_dtime() }
         });
         return new_args;
+    }
+
+    const std::string& Format::get_name() const
+    {
+        return name;
+    }
+
+    void set_fmt(const std::string& format)
+    {
+        fmt = format;
+    }
+
+    void set_time(const std::string& tfmt)
+    {
+        dt_fmt.time = tfmt;
+    }
+
+    void set_date(const std::string& dfmt)
+    {
+        dt_fmt.date = dfmt;
+    }
+
+    void set_dtime(const std::string& dtfmt)
+    {
+        dt_fmt.datetime = dtfmt;
     }
 
     std::string Format::operator()(const Record& rcd) const
