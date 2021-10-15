@@ -9,10 +9,10 @@ namespace xlog::cnfg
     class ConfigTypeBase
     {
       protected:
-        std::vector<LoggerConfigItf> loggers;
-        std::vector<HandlerConfigItf> handlers;
-        std::vector<FormatConfigItf> formats;
-        std::vector<FilterConfigItf> filters;
+        std::vector<uptr_t<LoggerConfigItf>> loggers;
+        std::vector<uptr_t<HandlerConfigItf>> handlers;
+        std::vector<uptr_t<FormatConfigItf>> formats;
+        std::vector<uptr_t<FilterConfigItf>> filters;
     };
 }
 
