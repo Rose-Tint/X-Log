@@ -9,12 +9,37 @@
 
 namespace xlog
 {
+    template<class It>
+    using iter_tag = typename std::iterator_traits<It>::iterator_category;
+
     class LogStreamBase
     {
         void write_wrapper();
         void flush_wrapper();
 
       protected:
+        static mutex_t io_mtx;
+
+        virtual void vwrite(const string_t&) = 0;
+        virtual void vflush() = 0;
+
+        ulock_t io_lock;
+        std::vector<thread_t> threads;
+        std::vector<value_type> buffers;
+
+      public:
+        LogStreamBase();
+        explicit LogStreamBase(value_type);
+        explicit LogStreamBase(ilist<value_type>);
+        LogStreamBase(value_type*, value_type*);
+        template<class Iter>
+        explicit LogStreamBase(Iter, Iter, iter_tag<Iter>* = nullptr);
+
+        LogStreamBase(LogStreamBase&&);
+        LogStreamBase(const LogStreamBase&);
+        LogStreamBase& operator=(LogStreamBase&&);
+        LogStreamBase& operator=(const LogStreamBase&);
+
         typedef buffer_t value_type;
         typedef value_type& reference;
         typedef const reference const_reference;
@@ -23,43 +48,25 @@ namespace xlog
         typedef uint size_type;
         typedef signed int difference_type;
 
-        static mutex_t io_mtx;
-
-        virtual void vwrite(const string_t&);
-        virtual void vflush();
-
-        ulock_t io_lock;
-        std::vector<thread_t> threads;
-        std::vector<value_type> buffers;
-
-      public:
-        LogStreamBase() = default;
-        explicit LogStreamBase(value_type);
-        explicit LogStreamBase(ilist<value_type>);
-        LogStreamBase(LogStreamBase&&);
-        LogStreamBase(const LogStreamBase&);
-        LogStreamBase& operator=(LogStreamBase&&);
-        LogStreamBase& operator=(const LogStreamBase&);
-
-        virtual ~LogStreamBase();
+        virtual ~LogStreamBase() = default;
 
         LogStreamBase& add_output(value_type);
         void write(const string_t&);
         void flush();
 
         // STL container named requirements
-        iterator begin();
-        iterator end();
-        const_iterator begin() const;
-        const_iterator end() const;
-        const_iterator cbegin();
-        const_iterator cend();
-        bool operator==(const LogStreamBase&) const;
-        bool operator!=(const LogStreamBase&) const;
-        void swap(LogStreamBase&);
-        size_type size() const;
-        size_type max_size() const;
-        bool empty() const;
+        virtual iterator begin();
+        virtual iterator end();
+        virtual const_iterator begin() const;
+        virtual const_iterator end() const;
+        virtual const_iterator cbegin();
+        virtual const_iterator cend();
+        virtual bool operator==(const LogStreamBase&) const;
+        virtual bool operator!=(const LogStreamBase&) const;
+        virtual void swap(LogStreamBase&);
+        virtual size_type size() const;
+        virtual size_type max_size() const;
+        virtual bool empty() const;
     };
 }
 

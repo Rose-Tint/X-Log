@@ -122,7 +122,7 @@ namespace xlog
     template<class T>
     using uptr_t = std::unique_ptr<T>;
     template<class T>
-    using ilist = const std::initializer_list<T>&;
+    using ilist = const std::initializer_list<T&>&;
     template<class T>
     using str_umap = std::unordered_map<string_t, T>;
     template<class T>
