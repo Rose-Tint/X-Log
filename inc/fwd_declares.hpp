@@ -65,6 +65,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_multimap>
 #include <unordered_set>
 #include <stack>
 #include <initializer_list>
@@ -119,6 +120,8 @@ namespace xlog
 #endif
     typedef std::basic_string<char_t> string_t;
 
+    template<class It>
+    using iter_tag = typename std::iterator_traits<It>::iterator_category;
     template<class T>
     using uptr_t = std::unique_ptr<T>;
     template<class T>
@@ -127,6 +130,8 @@ namespace xlog
     using str_umap = std::unordered_map<string_t, T>;
     template<class T>
     using lookup_map = std::unordered_map<string_t, uptr_t<T>>;
+    template<class T>
+    using lookup_multimap = std::unordered_multimap<string_t, uptr_t<T>>;
 
 
     typedef unsigned long long ullong;
@@ -163,7 +168,9 @@ namespace xlog
 
 
     class Logger;
-    class Handler
+    class HandlerBase;
+      class HandlerWatcher;
+      class FileHandler;
     class Record;;
     class Format;
       class CharOutputIter;
