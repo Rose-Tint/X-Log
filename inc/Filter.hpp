@@ -2,13 +2,13 @@
 #define X_LOG_FILTER_HPP
 
 #include "fwd_declares.hpp"
+#include "format.hpp"
 #include "record.hpp"
 
 namespace xlog
 {
     typedef void (*pre_filter_f)(Record&);
     typedef bool (*filter_f)(const Record&);
-    typedef void (*post_filter_f)(const Record&);
 
     class Filter final
     {

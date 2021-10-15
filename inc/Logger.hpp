@@ -3,6 +3,7 @@
 
 #include "fwd_declares.hpp"
 #include "filter.hpp"
+#include "format.hpp"
 #include "record.hpp"
 #include "handler.hpp"
 

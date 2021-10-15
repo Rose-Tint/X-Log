@@ -42,7 +42,7 @@ namespace xlog
 }
 
 #ifndef MAKE_RCD
-#ifdef CPP20
+#if CPP_STD >= 20
 #define MAKE_RCD(...) xlog::Record(std::source_location::current())
 #endif
 #define MAKE_RCD(...) xlog::Record( __FILE__, __LINE__, { __VA_ARGS__ } )
