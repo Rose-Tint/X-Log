@@ -8,8 +8,7 @@ namespace xlog::utils
 {
     bool case_ins_eq(const std::string&, const std::string&);
 
-    template<class CharT>
-    void trim(std::basic_string<CharT>&, CharT);
+    void trim(string_t&, char_t);
 }
 
 #endif

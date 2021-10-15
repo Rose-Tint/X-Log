@@ -24,16 +24,16 @@ namespace xlog
 
       public:
         Logger() = delete;
-        Logger(const string_t&); // done
+        Logger(const string_t&);
 
         static inline Format def_fmt = Format("std");
 
-        void log(const string_t&, const uchar&, Record); // done
+        void log(const string_t&, const uchar&, Record);
         const string_t& get_name() const { return name; }
 
         Logger& add_handlers(const string_t&);
         Logger& add_handlers(ilist<string_t>);
-        Logger& set_filter(const string_t&); // done
+        Logger& set_filter(const string_t&);
     };
 }
 #endif

@@ -12,18 +12,18 @@ namespace xlog
 
     class Filter final
     {
-        friend Filter& get_filter(const std::string&); // done
+        friend Filter& get_filter(const string_t&);
 
         static lookup_map<Filter> filters;
 
-        std::string name;
+        string_t name;
         pre_filter_f pre = nullptr;
         filter_f main_ = def_filter;
         post_filter_f post = nullptr;
 
       public:
         Filter() = delete;
-        Filter(const std::string&); // done
+        Filter(const string_t&);
 
         static bool def_filter(const Record&) { return true; }
 
@@ -32,7 +32,7 @@ namespace xlog
         void set_postfilter(post_filter_f postf) { post = postf; }
 
         bool operator()(Record&) const;
-        const std::string& get_name() const { return name; }
+        const string_t& get_name() const { return name; }
     };
 }
 

@@ -30,16 +30,16 @@ namespace xlog
         Handler() = delete;
         Handler(const string_t&);
 
-        Handler& set_min(uchar); // done
-        Handler& set_max(uchar); // done
-        Handler& set_format(const string_t&); // done
-        Handler& set_filter(const string_t&); // done
+        Handler& set_min(uchar);
+        Handler& set_max(uchar);
+        Handler& set_format(const string_t&);
+        Handler& set_filter(const string_t&);
         Handler& add_outputs(const fs::path&);
         Handler& add_outputs(ilist<fs::path>);
         Handler& add_outputs(buffer_t);
         Handler& add_outputs(ilist<buffer_t>);
 
-        virtual bool handle(Record&) const; // done?
+        virtual bool handle(Record&) const;?
         const uchar& get_min() const { return min; }
         const uchar& get_max() const { return max; }
         const string_t& get_name() const { return name; }
