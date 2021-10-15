@@ -6,22 +6,24 @@ namespace xlog
 {
     class Thread
     {
-        // std::thread wrapper
         std::thread thread;
+        ulock_t& lock;
+
+        template<class F, class... Args_t>
+        void locking_wrapper(F, Args_t...);
 
       public:
-        Thread(ulock_t&);
-        Thread(Thread&&);
-        Thread(const Thread&);
-        Thread& operator=(Thread&&);
-        Thread& operator=(const Thread&);
+        explicit Thread(ulock_t& lock)
+            : lock(lock) { }
+        template<class F, class... Args_t>
+        explicit Thread(ulock_t& lock, F fn, Args_t... args)
+            : lock(lock) { run(std::forward<F, Args_t... >(fn, args...)); }
 
-        virtual ~Thread();
+        virtual ~Thread() { join(); }
 
-        void detach();
         void join();
-        template<class Function_f, class... Args_t>
-            void run(Function_f, Args_t...);
+        template<class F, class... Args_t>
+        void run(F, Args_t...);
     };
 }
 
