@@ -10,7 +10,7 @@
 
 namespace xlog::cnfg
 {
-    class Json : public ParserBase, ConfigType
+    class Json : public ParserBase, public ConfigTypeBase
     {
         virtual ValueType get_value() override;
         virtual _String get_key() override;

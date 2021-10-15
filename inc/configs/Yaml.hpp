@@ -9,7 +9,7 @@
 
 namespace xlog::cnfg
 {
-    class Yaml : public ParserBase, ConfigType
+    class Yaml : public ParserBase, public ConfigTypeBase
     {
         std::vector<uchar> idt_widths;
         uchar indent_width;
