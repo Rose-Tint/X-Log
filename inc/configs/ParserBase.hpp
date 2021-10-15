@@ -9,7 +9,7 @@ namespace xlog::cnfg
     class ParserBase
     {
       protected:
-        typedef std::char_traits<char> Traits;
+        typedef std::char_traits<char_t> Traits;
         typedef uchar flags_base_t;
 
         enum Flags_e : flags_base_t
@@ -24,10 +24,10 @@ namespace xlog::cnfg
 
         struct Seek
         {
-            char curr = 0;
+            char_t curr = 0;
             ushort line = 0;
             uchar column = 0;
-            void inc(char);
+            void inc(char_t);
         };
 
         friend inline Flags_e operator ~ (const Flags_e& flg)
@@ -45,24 +45,28 @@ namespace xlog::cnfg
         friend inline Flags_e operator ^= (Flags_e& lhs, Flags_e rhs)
             { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) ^ static_cast<flags_base_t>(rhs)); }
 
-        std::basic_ifstream<char> file;
+        ifile_t file;
         Flags_e flags;
         Seek seek;
         uchar scope;
-        char stmt_delim;
+        char_t stmt_delim;
 
-        char get();
-        std::string get_word(); // skips non alpha chars
-        std::string get_until(char);
-        std::string get_until(const std::string&);
-        std::string get_through(const std::string&);
-        std::string get_statement();
+        char_t get();
+        string_t get_word();
+        string_t get_until(char_t);
+        string_t get_until(const string_t&);
+        string_t get_through(const string_t&);
+        string_t get_statement();
+        virtual ValueType get_value() = 0;
+        virtual _String get_key() = 0;
+        virtual _String get_string() = 0;
+        virtual _Map get_map() = 0;
+        virtual _Array get_array() = 0;
 
-        bool get(char&);
+        bool get(char_t&);
 
       public:
-        explicit ParserBase(const fs::path& path, char line_end_char)
-            : file(path), stmt_delim(line_end_char) { }
+        explicit ParserBase(const fs::path& path, char_t);
 
         inline bool eol(void) const { return flags & EOL; }
         inline bool eof(void) const { return flags & EOF ; }
@@ -77,11 +81,6 @@ namespace xlog::cnfg
         inline void newline(bool val) { flags |= (val) ? NEWLINE : flags; }
         inline void exp_new_scope(bool val) { flags |= (val) ? EXP_NEW_SCOPE : flags; }
     };
-
-    inline ParserBase::Flags_e operator ! (const ParserBase::Flags_e&);
-    inline ParserBase::Flags_e operator | (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
-    inline ParserBase::Flags_e operator & (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
-    inline ParserBase::Flags_e operator ^ (const ParserBase::Flags_e&, const ParserBase::Flags_e&);
 }
 
 #endif

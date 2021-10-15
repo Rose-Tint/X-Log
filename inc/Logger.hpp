@@ -2,6 +2,7 @@
 #define X_LOG_LOGGER_HPP
 
 #include "fwd_declares.hpp"
+#include "filter.hpp"
 #include "format.hpp"
 #include "record.hpp"
 #include "handler.hpp"
@@ -11,29 +12,29 @@ namespace xlog
 {
     class Logger final
     {
-        friend Logger& get_logger(const std::string&);
-        friend const Logger& find_logger(const std::string&);
+        friend Logger& get_logger(const string_t&);
 
         static lookup_map<Logger> loggers;
 
-        std::string name;
-        std::string filter_name;
-        std::vector<std::string> handler_names;
+        string_t name;
+        string_t filter_name;
+        std::vector<string_t> handler_names;
 
-        std::vector<Handler*> handlers(const uchar&); // done
+        std::vector<Handler*> handlers(const uchar&) const;
+        Filter& filter() const;
 
       public:
         Logger() = delete;
-        Logger(const std::string&); // done
+        Logger(const string_t&);
 
         static inline Format def_fmt = Format("std");
 
-        void log(const std::string&, const uchar&, Record); // done
-        const std::string& get_name() const { return name; }
+        void log(const string_t&, const uchar&, Record);
+        const string_t& get_name() const { return name; }
 
-        Logger& add_handler(const std::string&); // done
-        Logger& add_handlers(ilist<std::string>); // done
-        Logger& set_filter(const std::string&); // done
+        Logger& add_handlers(const string_t&);
+        Logger& add_handlers(ilist<string_t>);
+        Logger& set_filter(const string_t&);
     };
 }
 #endif

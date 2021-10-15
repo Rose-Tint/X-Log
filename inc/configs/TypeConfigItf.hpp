@@ -6,40 +6,100 @@
 
 namespace xlog::cnfg
 {
-    struct TypeConfigItfBase
+    class TypeConfigItfBase
     {
-        std::string name;
+        string_t name;
+
+      public:
+        TypeConfigItfBase() = default;
+        const string_t& Name() const;
+        TypeConfigItfBase& Name(const string_t&);
     };
 
-    struct LoggerConfigItf : TypeConfigItfBase
+    class LoggerConfigItf : TypeConfigItfBase
     {
-        std::vector<std::string> handlers = { };
+        std::vector<string_t> handlers = { };
+        string_t filter = "std";
+
+      public:
+        LoggerConfigItf() = default;
+
+        const std::vector<string_t>& Handlers() const;
+        const string_t& Filter() const;
+
+        LoggerConfigItf& Handlers(ilist<string_t>);
+        LoggerConfigItf& Filter(const string_t&);
     };
 
-    struct HandlerConfigItf : TypeConfigItfBase
+    class HandlerConfigItf : TypeConfigItfBase
     {
-        std::string format = "std";
+        string_t format = "std";
+        string_t filter = "std";
         uchar min = 0;
         uchar max = -1;
         std::vector<fs::path> files = { };
+        std::vector<buffer_t> buffers = { };
+
+      public:
+        HandlerConfigItf() = default;
+
+        const string_t& Format() const;
+        const string_t& Filter() const;
+        const uchar& Min() const;
+        const uchar& Max() const;
+        const std::vector<fs::path> Files() const;
+        const std::vector<buffer_t> Buffers() const;
+
+        HandlerConfigItf& Format(const string_t&);
+        HandlerConfigItf& Filter(const string_t&);
+        HandlerConfigItf& Min(const uchar&);
+        HandlerConfigItf& Max(const uchar&);
+        HandlerConfigItf& Files(const fs::path&);
+        HandlerConfigItf& Files(ilist<fs::path>);
+        HandlerConfigItf& Buffers(buffer_t);
+        HandlerConfigItf& Buffers(ilist<buffer_t>);
     };
 
-    struct FormatConfigItf : TypeConfigItfBase
+    class FormatConfigItf : TypeConfigItfBase
     {
-        std::string fmt = Format::def_fmt;
-        std::string time = Format::def_dft.time;
-        std::string date = Format::def_dft.date;
-        std::string datetime = Format::def_dft.datetime;
+        string_t format = Format::def_fmt;
+        string_t time = Format::def_dft.time;
+        string_t date = Format::def_dft.date;
+        string_t datetime = Format::def_dft.datetime;
+
+      public:
+        FormatConfigItf() = default;
+
+        const string_t& Format() const;
+        const string_t& Time() const;
+        const string_t& Date() const;
+        const string_t& DateTime() const;
+
+        FormatConfigItf& Format(const string_t&);
+        FormatConfigItf& Time(const string_t&);
+        FormatConfigItf& Date(const string_t&);
+        FormatConfigItf& DateTime(const string_t&);
     };
 
-    struct FilterConfigItf : TypeConfigItfBase
+    class FilterConfigItf : TypeConfigItfBase
     {
         pre_filter_f prefilter = nullptr;
         filter_f filter = Filter::def_filter;
         post_filter_f postfilter = nullptr;
+
+      public:
+        FilterConfigItf() = default;
+
+        pre_filter_f PreFilter() const;
+        filter_f Filter() const;
+        post_filter_f PostFilter() const;
+
+        FilterConfigItf& PreFilter(pre_filter_f);
+        FilterConfigItf& Filter(filter_f);
+        FilterConfigItf& PostFilter(post_filter_f);
     };
 
-    class ConfigType
+    class ConfigTypeBase
     {
       protected:
         std::vector<LoggerConfigItf> loggers;

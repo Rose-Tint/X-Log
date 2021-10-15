@@ -11,35 +11,38 @@ namespace xlog
 {
     class Handler final
     {
-        friend Handler& get_handler(const std::string&);
-        friend const Handler& find_handler(const std::string&);
+        friend Handler& get_handler(const string_t&);
 
         static lookup_map<Handler> handlers;
 
-        std::string name;
-        std::string format_name = "std";
-        std::string filter_name = "std";
-        LogStream lstream = { };
-        uchar min = 0;
-        uchar max = -1;
-        const Filter& filter() { return get_filter(filter_name); }
+        string_t name;
+        string_t format_name;
+        string_t filter_name;
+        // ptr to allow polymorphism
+        uptr_t<LogStreamBase> lstream_ptr;
+        uchar min;
+        uchar max;
+
+        Filter& filter() const;
+        Format& format() const;
 
       public:
         Handler() = delete;
-        Handler(const std::string&);
+        Handler(const string_t&);
 
-        Handler& set_min(uchar); // done
-        Handler& set_max(uchar); // done
-        Handler& set_format(const std::string&); // done
-        Handler& set_filter(const std::string&); // done
-        Handler& add_buffer(buffer_t); // done
-        Handler& add_file(const fs::path&); // done
-        Handler& add_buffers(ilist<buffer_t>); // done
-        Handler& add_files(ilist<fs::path>); // done
-        bool handle(Record&) const; // dpme
+        Handler& set_min(uchar);
+        Handler& set_max(uchar);
+        Handler& set_format(const string_t&);
+        Handler& set_filter(const string_t&);
+        Handler& add_outputs(const fs::path&);
+        Handler& add_outputs(ilist<fs::path>);
+        Handler& add_outputs(buffer_t);
+        Handler& add_outputs(ilist<buffer_t>);
+
+        virtual bool handle(Record&) const;?
         const uchar& get_min() const { return min; }
         const uchar& get_max() const { return max; }
-        const std::string& get_name() const { return name; }
+        const string_t& get_name() const { return name; }
     };
 }
 

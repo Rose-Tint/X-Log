@@ -5,13 +5,21 @@
 #include "config.hpp"
 #include "configs/TypeConfigItf.hpp"
 #include "configs/ParserBase.hpp"
+#include "configs/ValueType.hpp"
 
 
 namespace xlog::cnfg
 {
-    class Json : ParserBase, TypeConfigItfBase
+    class Json : public ParserBase, ConfigType
     {
-        ; 
+        virtual ValueType get_value() override;
+        virtual _String get_key() override;
+        virtual _String get_string() override;
+        virtual _Map get_map() override;
+        virtual _Array get_array() override;
+
+      public:
+        Json(const fs::path);
     };
 }
 
