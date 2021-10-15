@@ -10,11 +10,13 @@
 
 namespace xlog::cnfg
 {
-    class Json : public ParserBase, TypeConfigItfBase
+    class Json : public ParserBase, ConfigType
     {
-        typedef ValueType JsonType;
-
-        ;
+        virtual ValueType get_value() override;
+        virtual _String get_key() override;
+        virtual _String get_string() override;
+        virtual _Map get_map() override;
+        virtual _Array get_array() override;
 
       public:
         Json(const fs::path);

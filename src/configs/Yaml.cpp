@@ -19,13 +19,7 @@ namespace xlog::cnfg
             std::string line = get_statement();
             utils::trim(line, ' ');
 
-            if (utils::case_ins_eq(line, "loggers"))
-                // extract_array_to<LoggerConfigItf>(loggers);
-            else if (utils::case_ins_eq(line, "handlers"))
-                // extract_array_to<HandlerConfigItf>(handlers);
-            else if (utils::case_ins_eq(line, "formats"))
-                // extract_array_to<FormatConfigItf>(formats);
-            else;// throw...
+            // ...
         }
         file.close();
     }
@@ -97,13 +91,13 @@ namespace xlog::cnfg
         return scope;
     }
 
-    void Yaml::extract_map(YamlType& map_v)
+    void Yaml::extract_map(ValueType& map_v)
     {
         map_v = _Map();
         uchar beg_scope = parse_indent();
         uchar new_scope = scope;
         scoping(false);
-        YamlType::_Type type = YamlType::UNDETERMINED;
+        ValueType::_Type type = ValueType::UNDETERMINED;
         _String key;
         _String val;
 
@@ -122,26 +116,26 @@ namespace xlog::cnfg
                 val = get_statement();
                 utils::trim(val, ' ');
                 if (Traits::eq(val.front(), '{') && Traits::eq(val.back(), '}'))
-                    type = YamlType::BLOCK_MAP;
-                else type = YamlType::STRING;
+                    type = ValueType::BLOCK_MAP;
+                else type = ValueType::STRING;
             }
 
             scoping(true);
-            YamlType value { { }, type };
+            ValueType value { { }, type };
             extract_value(value); // recurse
             map[key] = value;
         }
         map_v.map = std::move(map);
     }
 
-    void Yaml::extract_array(YamlType& array_v)
+    void Yaml::extract_array(ValueType& array_v)
     {
         array_v = _Array();
         uchar beg_scope = parse_indent();
         uchar new_scope = scope;
         scoping(false);
-        YamlType::_Type type = YamlType::UNDETERMINED;
-        YamlType value;
+        ValueType::_Type type = ValueType::UNDETERMINED;
+        ValueType value;
         _String val;
 
         while (1)
@@ -158,34 +152,34 @@ namespace xlog::cnfg
                 ;// throw...
             if (Traits::eq(val.front(), '-'))
             {
-                type = YamlType::ARRAY;
+                type = ValueType::ARRAY;
                 value = _Array();
                 extract_array(value); // i think?
                 _String val = val.substr(1, val.size() - 1);
                 utils::trim(val, ' ');
-                value.array.insert(0, { val, YamlType::STRING });
+                value.array.insert(0, { val, ValueType::STRING });
                 array_v.array.push_back(value);
                 continue;
             }
             else if (Traits::eq(val.front(), '[') && Traits::eq(val.back(), ']'))
-                type = YamlType::BLOCK_ARRAY;
+                type = ValueType::BLOCK_ARRAY;
             else if (Traits::eq(val.front(), '{') || Traits::eq(val.back(), '}'))
-                type = YamlType::BLOCK_MAP;
+                type = ValueType::BLOCK_MAP;
             else if (Traits::eq(val.back(), ':'))
-                type = YamlType::MAP;
+                type = ValueType::MAP;
 
-            else type = YamlType::STRING;
+            else type = ValueType::STRING;
             extract_value(value);
             array_v.array.push_back(value);
         }
     }
 
-    void Yaml::extract_value(YamlType& value)
+    void Yaml::extract_value(ValueType& value)
     {
         switch (value.type_e)
         {
           // parse looking for a string
-          case (YamlType::STRING):{
+          case (ValueType::STRING):{
             exp_new_scope(false);
             _String str = get_statement();
             utils::trim(str, ' ');
@@ -193,18 +187,18 @@ namespace xlog::cnfg
             } break;
 
           // parse looking for a map
-          case (YamlType::BLOCK_MAP):
+          case (ValueType::BLOCK_MAP):
             extract_block_map(value);
             break;
-          case (YamlType::MAP):
+          case (ValueType::MAP):
             extract_map(value);
             break;
 
           // parse looking for an array
-          case (YamlType::BLOCK_ARRAY):
+          case (ValueType::BLOCK_ARRAY):
             extract_block_array(value);
             break;
-          case (YamlType::ARRAY):
+          case (ValueType::ARRAY):
             extract_array(value);
             break;
 
@@ -233,54 +227,48 @@ namespace xlog::cnfg
         return key;
     }
 
-    LoggerConfigItf Yaml::make_logger(const Yaml::_Map& map)
+    LoggerConfigItf Yaml::make_logger(const _Map& map)
     {
-        LoggerConfigItf logger;
-        set_or_throw(logger.name, map, "name", "Name field required");
-        auto hdlrs_arr_iter = map.find("handlers");
-        if (hdlrs_arr_iter != map.end())
+        LoggerConfigItf itf;
+        if (map.count("name"))
+            itf.Name(map.at("name"));
+        else ;// throw...
+
+        if (map.count("filter"))
+            itf.Filter(map.at("filter"));
+
+        if (map.count("handlers"))
         {
-            YamlType hdlr_arr = { { }, YamlType::ARRAY };
-            file >> hdlr_arr;
-            for (YamlType hdlr_v : hdlr_arr.first)
+            ValueType array = { { }, ValueType::ARRAY };
+            extract_array(array);
+            for (ValueType hvalue : array.first)
             {
-                if (hdlr_v.type_e != YamlType::STRING)
+                if (hvalue.type_e != ValueType::STRING)
                     ;// throw...
-                logger.handlers.push_back(hdlr_v.first);
+                itf.Handlers({ hvalue.string });
             }
         }
-        return logger;
+        return itf;
     }
 
-    HandlerConfigItf Yaml::make_handler(const Yaml::_Map& map)
+    HandlerConfigItf Yaml::make_handler(const _Map& map)
     {
-        HandlerConfigItf handler;
-        set_or_throw(handler.name, map, "name", "Name field required");
-        try_set(handler.min, map, "min");
-        try_set(handler.max, map, "max");
-        auto file_arr_iter = map.find("files");
-        if (file_arr_iter != map.end())
-        {
-            YamlType file_arr = { { }, YamlType::ARRAY };
-            file >> file_arr;
-            for (YamlType file_v : file_arr.array)
-            {
-                if (file_v.type_e != YamlType::STRING)
-                    ;// throw...
-                handler.files.push_back(file_v.first);
-            }
-        }
+        HandlerConfigItf itf;
+        if (map.count("name"))
+            itf.Name(map.at("name"));
+        else ;// throw...
+
+        if (map.count("filter"))
+            itf.Filter(map.at("filter"));
+        if (map.count("format"))
+            itf.Format(map.at("format"));
+        if (map.count("min"))
+            itf.Min(map.at("min"));
+        if (map.count("max"))
+            itf.Max(map.at("max"));
+
+        // files...
+
         return handler;
-    }
-
-    FormatConfigItf Yaml::make_format(const _Map& map)
-    {
-        FormatConfigItf format
-        set_or_throw(format.name, map, "name", "Name field required");
-        try_set(format.fmt, map, "fmt");
-        try_set(format.date, map, "date");
-        try_set(format.time, map, "time");
-        try_set(format.datetime, map, "datetime");
-        return format;
     }
 }

@@ -40,6 +40,7 @@ namespace xlog
           *           last call to formatter.parse(parse_context), and
           *       - ctx.arg(n) for any value n of type std::size_t.
            */
+
       public:
         typedef const Record& Arg;
         typedef char_t CharT;

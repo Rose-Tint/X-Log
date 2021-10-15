@@ -32,9 +32,9 @@ namespace xlog
 
         for (const HandlerConfigItf& itf : config.handlers)
         {
-            Handler handler(itf.Name())
-            handler.set_min(itf.Min);
-            handler.set_max(itf.Max);
+            Handler handler(itf.Name());
+            handler.set_min(itf.Min());
+            handler.set_max(itf.Max());
             if (itf.Buffers().empty())
                 handler.add_buffer(std::cout.rdbuf());
             else for (buffer_t buffer : itf.Buffers())

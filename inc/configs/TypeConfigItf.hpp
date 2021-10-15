@@ -11,52 +11,53 @@ namespace xlog::cnfg
         string_t name;
 
       public:
-        TypeConfigItfBase();
-
-        const string_t& Name() const { return name; }
-
-        TypeConfigItfBase& Name(const string_t& new_name)
-            { name = new_name; return *this; }
+        TypeConfigItfBase() = default;
+        const string_t& Name() const;
+        TypeConfigItfBase& Name(const string_t&);
     };
 
     class LoggerConfigItf : TypeConfigItfBase
     {
         std::vector<string_t> handlers = { };
+        string_t filter = "std";
 
       public:
-        LoggerConfigItf();
-        const std::vector<string_t>& Handlers() const { return handlers; }
-        LoggerConfigItf& Handlers(ilist<string_t> hnames)
-            { handlers.insert(handlers.end(), hnames); return *this; }
+        LoggerConfigItf() = default;
+
+        const std::vector<string_t>& Handlers() const;
+        const string_t& Filter() const;
+
+        LoggerConfigItf& Handlers(ilist<string_t>);
+        LoggerConfigItf& Filter(const string_t&);
     };
 
     class HandlerConfigItf : TypeConfigItfBase
     {
         string_t format = "std";
+        string_t filter = "std";
         uchar min = 0;
         uchar max = -1;
         std::vector<fs::path> files = { };
-        std::vector<buffer_t> files = { };
+        std::vector<buffer_t> buffers = { };
 
       public:
-        HandlerConfigItf();
+        HandlerConfigItf() = default;
 
-        const string_t& Format() const { return format; }
-        const uchar& Min() const { return min; }
-        const uchar& Min() const { return min; }
-        const std::vector<fs::path> Files() const { return files; }
-        const std::vector<buffer_t> Buffers() const { return buffers; }
+        const string_t& Format() const;
+        const string_t& Filter() const;
+        const uchar& Min() const;
+        const uchar& Max() const;
+        const std::vector<fs::path> Files() const;
+        const std::vector<buffer_t> Buffers() const;
 
-        HandlerConfigItf& Format(const string_t& fmt)
-            { format = fmt; return *this; }
-        HandlerConfigItf& Max(const uchar& mn)
-            { min = mn; return *this; }
-        HandlerConfigItf& Max(const uchar& mx)
-            { max = mx; return *this; }
-        HandlerConfigItf& Files(ilist<fs::path> _files)
-            { files.insert(files.end(), _files); return *this; }
-        HandlerConfigItf& Buffers(ilist<buffer_t> bufs)
-            { buffers.insert(buffers.end(), bufs); return *this; }
+        HandlerConfigItf& Format(const string_t&);
+        HandlerConfigItf& Filter(const string_t&);
+        HandlerConfigItf& Min(const uchar&);
+        HandlerConfigItf& Max(const uchar&);
+        HandlerConfigItf& Files(const fs::path&);
+        HandlerConfigItf& Files(ilist<fs::path>);
+        HandlerConfigItf& Buffers(buffer_t);
+        HandlerConfigItf& Buffers(ilist<buffer_t>);
     };
 
     class FormatConfigItf : TypeConfigItfBase
@@ -67,21 +68,17 @@ namespace xlog::cnfg
         string_t datetime = Format::def_dft.datetime;
 
       public:
-        FormatConfigItf();
+        FormatConfigItf() = default;
 
-        const string_t& Format() const { return format; }
-        const string_t& Time() const { return time; }
-        const string_t& Date() const { return date; }
-        const string_t& DateTime() const { return datetime; }
+        const string_t& Format() const;
+        const string_t& Time() const;
+        const string_t& Date() const;
+        const string_t& DateTime() const;
 
-        FormatConfigItf& Format(const string_t& fmt)
-            { format = fmt; return *this }
-        FormatConfigItf& Time(const string_t& tm)
-            { time = tm; return *this }
-        FormatConfigItf& Date(const string_t& dt)
-            { date = dt; return *this }
-        FormatConfigItf& DateTime(const string_t& dt)
-            { datetime = dt; return *this }
+        FormatConfigItf& Format(const string_t&);
+        FormatConfigItf& Time(const string_t&);
+        FormatConfigItf& Date(const string_t&);
+        FormatConfigItf& DateTime(const string_t&);
     };
 
     class FilterConfigItf : TypeConfigItfBase
@@ -91,18 +88,15 @@ namespace xlog::cnfg
         post_filter_f postfilter = nullptr;
 
       public:
-        FilterConfigItf();
+        FilterConfigItf() = default;
 
-        pre_filter_f PreFilter() const { return prefilter; }
-        filter_f Filter() const { return filter; }
-        post_filter_f PostFilter() const { return postfilter; }
+        pre_filter_f PreFilter() const;
+        filter_f Filter() const;
+        post_filter_f PostFilter() const;
 
-        FilterConfigItf& PreFilter(pre_filter_f pref)
-            { prefilter = pref; return *this; }
-        FilterConfigItf& Filter(filter_f filt)
-            { filter = filt; return *this; }
-        FilterConfigItf PostFilter(post_filter_f postf)
-            { postfilter = postf; return *this; }
+        FilterConfigItf& PreFilter(pre_filter_f);
+        FilterConfigItf& Filter(filter_f);
+        FilterConfigItf& PostFilter(post_filter_f);
     };
 
     class ConfigTypeBase

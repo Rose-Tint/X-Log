@@ -150,12 +150,10 @@ namespace xlog
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
-    typedef string_t (*var_fmt_f)(const Format&, const Record&);
-
 
     namespace components
     {
-        struct config
+        namespace config
         {
             static constexpr bool json;
             static constexpr bool yaml;
@@ -165,15 +163,16 @@ namespace xlog
 
 
     class Logger;
-    class Handler;
+    class Handler
+    class Record;;
     class Format;
       class CharOutputIter;
       class DateTimeFormat;
+      typedef string_t (*var_fmt_f)(const Record&);
     class Filter;
     class Error;
     class LogStreamBase;
       class LogStreamIter;
-    class Record;
     class Thread;
 
     namespace cnfg

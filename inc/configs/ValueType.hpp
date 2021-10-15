@@ -4,8 +4,10 @@
 
 namespace xlog::cnfg
 {
-    typedef str_umap<YamlType> _Map;
-    typedef std::vector<YamlType> _Array;
+    class ValueType;
+
+    typedef str_umap<ValueType, std::hash<ValueType>, utils::case_ins_eq> _Map;
+    typedef std::vector<ValueType> _Array;
     typedef string_t _String;
 
     struct ValueType
@@ -26,11 +28,11 @@ namespace xlog::cnfg
             STRING           = 0b0'0110'0'0,
         };
 
-        YamlType(_Type);
-        YamlType& operator=(const _Array&);
-        YamlType& operator=(const _Map&);
-        YamlType& operator=(const _String&);
-        YamlType& operator=(const _Type&);
+        ValueType(_Type);
+        ValueType& operator=(const _Array&);
+        ValueType& operator=(const _Map&);
+        ValueType& operator=(const _String&);
+        ValueType& operator=(const _Type&);
 
         _Type type_e;
         union

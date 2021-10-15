@@ -9,11 +9,13 @@
 
 namespace xlog
 {
-    template<class BufferType>
     class LogStreamBase
     {
+        void write_wrapper();
+        void flush_wrapper();
+
       protected:
-        typedef BufferType value_type;
+        typedef buffer_t value_type;
         typedef value_type& reference;
         typedef const reference const_reference;
         typedef LogStreamIter iterator;
@@ -23,15 +25,16 @@ namespace xlog
 
         static mutex_t io_mtx;
 
-        virtual void _write(const string_t&) = 0;
-        virtual void _flush() = 0;
+        virtual void vwrite(const string_t&);
+        virtual void vflush();
 
         ulock_t io_lock;
-        std::vector<Thread> threads;
+        std::vector<thread_t> threads;
         std::vector<value_type> buffers;
 
       public:
         LogStreamBase() = default;
+        explicit LogStreamBase(value_type);
         explicit LogStreamBase(ilist<value_type>);
         LogStreamBase(LogStreamBase&&);
         LogStreamBase(const LogStreamBase&);
@@ -40,9 +43,10 @@ namespace xlog
 
         virtual ~LogStreamBase();
 
-        LogStreamBase& add_buffer(value_type);
+        LogStreamBase& add_output(value_type);
         void write(const string_t&);
         void flush();
+
         // STL container named requirements
         iterator begin();
         iterator end();
