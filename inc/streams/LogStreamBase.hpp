@@ -9,9 +9,6 @@
 
 namespace xlog
 {
-    template<class It>
-    using iter_tag = typename std::iterator_traits<It>::iterator_category;
-
     class LogStreamBase
     {
         void write_wrapper();
