@@ -16,11 +16,11 @@ namespace xlog::utils
     template<class It>
     using iter_type = typename std::iterator_traits<It>::value_type;
 
-    template<class Condition>
+    template<bool Condition>
     using EnableIf = typename std::enable_if<Condition, bool>::type;
 
     template<class ValueType, class It>
-    using EnableIterFor = EnableIf<std::is_convertible<iter_type<It>, ValueType>>;
+    using EnableIterFor = EnableIf<std::is_convertible<It, ValueType>>;
 }
 
 #endif
