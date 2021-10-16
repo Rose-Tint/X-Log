@@ -36,8 +36,8 @@ namespace xlog
         void insert_args(const string_t&, const string_t&);
         void insert_args(const str_pair_t&);
         void insert_args(ilist<str_pair_t>);
-        template<class It>
-        void insert_args(It, It, iter_tag<It>* = nullptr);
+        template<class It, utils::EnableIterFor<str_pair_t, It> = true>
+        void insert_args(It, It);
 
 #if CPP_STD >= 20
         Record(const std::source_location&, ilist<str_pair_t>);

@@ -48,8 +48,8 @@ namespace xlog
             insert_args(pair);
     }
 
-    template<class It>
-    void Record::insert_args(It begin, It end, iter_tag<It>*)
+    template<class It, utils::EnableIterFor<str_pair_t, It>>
+    void Record::insert_args(It begin, It end)
     {
         for (auto iter = begin; iter < end; iter++)
             insert_args(iter);
