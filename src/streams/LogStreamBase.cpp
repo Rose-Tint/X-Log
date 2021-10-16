@@ -15,8 +15,8 @@ namespace xlog
         add_outstreams(buffer);
     }
 
-    template<class It>
-    LogStreamBase::LogStreamBase(It begin, It end, iter_tag*)
+    template<class It, utils::EnableIterFor<fs::path, It>>
+    LogStreamBase::LogStreamBase(It begin, It end)
         : LogStreamBase() // call default ctor for io_lock
     {
         for (auto iter = begin; iter < end; iter++)
@@ -52,8 +52,8 @@ namespace xlog
             threads.emplace_back(io_lock, &LogStreamBase::vflush, this, buffer);
     }
 
-    template<class It>
-    void LogStreamBase::add_outstreams(It begin, It end, iter_tag*)
+    template<class It, utils::EnableIterFor<fs::path, It>>
+    void LogStreamBase::add_outstreams(It begin, It end)
     {
         for (auto iter = begin; iter < end; iter++)
             buffers.push_back(*iter);

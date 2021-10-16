@@ -28,8 +28,8 @@ namespace xlog
         LogStreamBase();
         explicit LogStreamBase(ulock_t&&);
         explicit LogStreamBase(buffer_t);
-        template<class It>
-        explicit LogStreamBase(It, It, iter_tag<It>* = nullptr);
+        template<class It, utils::EnableIterFor<buffer_t, It> = true>
+        explicit LogStreamBase(It, It);
 
         LogStreamBase(LogStreamBase&&) = delete;
         LogStreamBase(const LogStreamBase&) = delete;
@@ -39,8 +39,8 @@ namespace xlog
         virtual ~LogStreamBase() = default;
 
         void add_outstreams(buffer_t buffer) { buffers.push_back(buffer); }
-        template<class It>
-        void add_outstreams(It, It, iter_tag<It>* = nullptr);
+        template<class It, utils::EnableIterFor<buffer_t, It> = true>
+        void add_outstreams(It, It);
         void emit(const string_t&);
         void flush();
     };
