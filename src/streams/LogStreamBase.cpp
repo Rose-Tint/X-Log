@@ -1,18 +1,6 @@
 #include "streams/LogStreamBase.hpp"
 
 
-class LogStreamBase
-{
-  public:
-    void emit(const string_t&);
-    void flush();
-
-    // STL container named requirements
-    virtual bool operator==(const LogStreamBase&) const;
-    virtual bool operator!=(const LogStreamBase&) const;
-};
-
-
 namespace xlog
 {
     LogStreamBase::LogStreamBase()
