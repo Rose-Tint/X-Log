@@ -16,7 +16,7 @@ namespace xlog
     {
         if (thread.joinable())
             join();
-        thread = Thread(
+            thread = Thread(
             &Thread::locking_wrapper,
             this,
             std::forward<F>(func), 

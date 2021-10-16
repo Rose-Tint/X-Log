@@ -3,7 +3,6 @@
 
 #include "fwd_declares.hpp"
 #include "Thread.hpp"
-#include "record.hpp"
 #include "streams/LogStreamIter.hpp"
 
 
@@ -11,59 +10,39 @@ namespace xlog
 {
     class LogStreamBase
     {
-        void write_wrapper();
-        void flush_wrapper();
-
       protected:
         static mutex_t io_mtx;
 
-        virtual void vwrite(const string_t&) = 0;
-        virtual void vflush() = 0;
+        virtual void vemit(const string_t&);
+        virtual void vflush();
+        virtual void vflush(buffer_t);
+        virtual void write(buffer_t, const string_t&);
 
+        // current problem: waste of memory when a thread finishes
+        // execution until it gets flushed due to staying in vector
         ulock_t io_lock;
-        std::vector<thread_t> threads;
-        std::vector<value_type> buffers;
+        std::vector<Thread> threads;
+        std::vector<buffer_t> buffers;
 
       public:
         LogStreamBase();
-        explicit LogStreamBase(value_type);
-        explicit LogStreamBase(ilist<value_type>);
-        LogStreamBase(value_type*, value_type*);
-        template<class Iter>
-        explicit LogStreamBase(Iter, Iter, iter_tag<Iter>* = nullptr);
+        explicit LogStreamBase(ulock_t&&);
+        explicit LogStreamBase(buffer_t);
+        template<class It>
+        explicit LogStreamBase(It, It, iter_tag<It>* = nullptr);
 
-        LogStreamBase(LogStreamBase&&);
-        LogStreamBase(const LogStreamBase&);
-        LogStreamBase& operator=(LogStreamBase&&);
-        LogStreamBase& operator=(const LogStreamBase&);
-
-        typedef buffer_t value_type;
-        typedef value_type& reference;
-        typedef const reference const_reference;
-        typedef LogStreamIter iterator;
-        typedef LogStreamIter const_iterator;
-        typedef uint size_type;
-        typedef signed int difference_type;
+        LogStreamBase(LogStreamBase&&) = delete;
+        LogStreamBase(const LogStreamBase&) = delete;
+        LogStreamBase& operator=(LogStreamBase&&) = delete;
+        LogStreamBase& operator=(const LogStreamBase&) = delete;
 
         virtual ~LogStreamBase() = default;
 
-        LogStreamBase& add_output(value_type);
-        void write(const string_t&);
+        void add_outstreams(buffer_t buffer) { buffers.push_back(buffer); }
+        template<class It>
+        void add_outstreams(It, It, iter_tag<It>* = nullptr);
+        void emit(const string_t&);
         void flush();
-
-        // STL container named requirements
-        virtual iterator begin();
-        virtual iterator end();
-        virtual const_iterator begin() const;
-        virtual const_iterator end() const;
-        virtual const_iterator cbegin();
-        virtual const_iterator cend();
-        virtual bool operator==(const LogStreamBase&) const;
-        virtual bool operator!=(const LogStreamBase&) const;
-        virtual void swap(LogStreamBase&);
-        virtual size_type size() const;
-        virtual size_type max_size() const;
-        virtual bool empty() const;
     };
 }
 
