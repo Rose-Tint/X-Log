@@ -120,8 +120,6 @@ namespace xlog
 #endif
     typedef std::basic_string<char_t> string_t;
 
-    template<class It>
-    using iter_tag = typename std::iterator_traits<It>::iterator_category;
     template<class T>
     using uptr_t = std::unique_ptr<T>;
     template<class T>
