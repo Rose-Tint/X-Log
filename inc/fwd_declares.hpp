@@ -1,5 +1,5 @@
-#ifndef X_LOG_STL_INCLUDES
-#define X_LOG_STL_INCLUDES
+#ifndef X_LOG_FWD_DECLARES
+#define X_LOG_FWD_DECLARES
 
 #ifndef CPP_STD
 #  if __cplusplus == 202002L
@@ -22,20 +22,16 @@
 #  ifndef UNLIKELY
 #    define UNLIKELY [[unlikely]]
 #  endif
-#  if CPP_STD > 17
+#  if CPP_STD >= 17
 #    ifndef FALLTHROUGH
 #      define FALLTHROUGH [[fallthrough]]
 #    endif
 #  endif
-#  if CPP_STD > 14
+#  if CPP_STD >= 14
 #    ifndef DEPRECATED
 #      define DEPRECATED [[deprecated]]
 #    endif
 #  endif
-   // if there is c++20 support, use jthread because jthread is safer
-   namespace xlog { typedef std::jthread thread_t; }
-#else
-   namespace xlog { typedef std::thread thread_t; }
 #endif
 
 #ifndef LIKELY
@@ -51,25 +47,29 @@
 #  define DEPRECATED
 #endif
 
+// exceptions
 #include <exception>
 #include <stdexcept>
 
+// miscellaneous
 #include <ctime>
 #include <memory>
 #include <cctype>
 #include <type_traits>
+#include <locale>
 
+// iostreaming
 #include <iostream>
 #include <fstream>
-#include <sstream>
 
+// containers
 #include <string>
 #include <unordered_map>
-#include <unordered_multimap>
 #include <unordered_set>
 #include <stack>
 #include <initializer_list>
 
+// Multithreading
 #include <thread>
 #include <mutex>
 
@@ -123,13 +123,15 @@ namespace xlog
     template<class T>
     using uptr_t = std::unique_ptr<T>;
     template<class T>
-    using ilist = const std::initializer_list<T&>&;
+    using ilist = const std::initializer_list<T>&;
+    template<class K, V>
+    using umap = std::unordered_map<K, V>;
     template<class T>
     using str_umap = std::unordered_map<string_t, T>;
     template<class T>
     using lookup_map = std::unordered_map<string_t, uptr_t<T>>;
     template<class T>
-    using lookup_multimap = std::unordered_multimap<string_t, uptr_t<T>>;
+    using uset = std::unordered_set<T>;
 
 
     typedef unsigned long long ullong;

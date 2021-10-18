@@ -10,17 +10,20 @@ namespace xlog::utils
 
     void trim(string_t&, char_t);
 
-    template<class It>
-    using iter_tag = typename std::iterator_traits<It>::iterator_category;
+    template<class I>
+    using iter_tag = typename std::iterator_traits<I>::iterator_category;
 
-    template<class It>
-    using iter_type = typename std::iterator_traits<It>::value_type;
+    template<class I>
+    using iter_type = typename std::iterator_traits<I>::value_type;
 
     template<bool Condition>
     using EnableIf = typename std::enable_if<Condition, bool>::type;
 
-    template<class ValueType, class It>
-    using EnableIterFor = EnableIf<std::is_convertible<It, ValueType>>;
+    template<class V, class I>
+    using EnableIterFor = EnableIf<std::is_convertible<iter_type<I>, V>::value>;
+
+    template<class V, class I>
+    using EnableConvertible = EnableIf<std::is_convertible<I, V>>;
 }
 
 #endif
