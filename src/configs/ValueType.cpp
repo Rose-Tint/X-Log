@@ -3,24 +3,49 @@
 
 namespace xlog::cnfg
 {
-    ValueType::ValueType(_Type type)
-        : type_e(type)
+    inline constexpr VType operator ~ (VType type)
+        { return ~static_cast<char>(type); }
+    inline constexpr VType operator | (VType lhs, VType rhs) // clearly unfinished
     {
-        switch (type_e)
+        return (lhs != rhs)
+            ? ()
+                ? (is_determined(lhs)) // if lhs is determined
+                    ? lhs | (is_determined(rhs)) // if rhs is determined
+                        ? rhs
+                        : ()
+                            ? 
+                            : 
+                    : 
+                :
+            : lhs
+    }
+    inline constexpr VType operator & (VType lhs, VType rhs)
+        { return static_cast<char>(lhs) & static_cast<char>(rhs); }
+    inline constexpr VType operator ^ (VType lhs, VType rhs)
+        { return static_cast<char>(lhs) ^ static_cast<char>(rhs); }
+    inline constexpr bool operator == (VType lhs, VType rhs)
+        { return static_cast<char>(lhs) == static_cast<char>(rhs); }
+    inline constexpr bool is_determined(VType type)
+        { return ((static_cast<char>(type) >> (sizeof(type) - 1)) == 0); }
+    inline constexpr bool is_array(VType);
+    inline constexpr bool is_string(VType);
+    inline constexpr bool is_map(VType);
+
+    ValueType::ValueType(VType type)
+        : type(type)
+    {
+        switch (type)
         {
-          case (BLOCK_ARRAY): FALLTHROUGH
-          case (NESTED_ARRAY): FALLTHROUGH
           case (ARRAY):
-            array = _Array();
+            array = Array();
             break;
 
-          case (BLOCK_MAP): FALLTHROUGH
           case (MAP):
-            map = _Map();
+            map = Map();
             break;
 
           case (STRING):
-            string = _String();
+            string = String();
             break;
 
           default:
@@ -28,42 +53,42 @@ namespace xlog::cnfg
         }
     }
 
-    ValueType& ValueType::operator=(const _Array& arr)
+    ValueType& ValueType::operator=(const Array& arr)
     {
-        type_e = ARRAY;
+        type = ARRAY;
         array = arr;
     }
 
-    ValueType& ValueType::operator=(const _Map& _map)
+    ValueType& ValueType::operator=(const Map& _map)
     {
-        type_e = MAP;
+        type = MAP;
         map = _map;
     }
 
-    ValueType& ValueType::operator=(const _String& str)
+    ValueType& ValueType::operator=(const String& str)
     {
-        type_e = STRING;
+        type = STRING;
         string = str;
     }
 
-    ValueType& ValueType::operator=(const _Type& _type)
+    ValueType& ValueType::operator=(VType _type)
     {
-        type_e = _type;
-        switch (type_e)
+        type = _type;
+        switch (type)
         {
           case (BLOCK_ARRAY): FALLTHROUGH
           case (NESTED_ARRAY): FALLTHROUGH
           case (ARRAY):
-            array = _Array();
+            array = Array();
             break;
 
           case (BLOCK_MAP): FALLTHROUGH
           case (MAP):
-            map = _Map();
+            map = Map();
             break;
 
           case (STRING):
-            string = _String();
+            string = String();
             break;
 
           default:

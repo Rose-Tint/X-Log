@@ -1,16 +1,29 @@
-#ifndef X_LOG_FWD_DECLARES
+throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #define X_LOG_FWD_DECLARES
 
 #ifndef CPP_STD
 #  if __cplusplus == 202002L
 #    define CPP_STD 20
+#    ifndef CPP20
+#      define CPP20
+#    endif
 #  elif __cplusplus == 201703L
 #    define CPP_STD 17
+#    ifndef CPP17
+#      define CPP17
+#    endif
 #  elif __cplusplus == 201402L
 #    define CPP_STD 14
-#  else
+#    ifndef CPP14
+#      define CPP14
+#    endif
+#  elif __cplusplus == 201103L
 #    define CPP_STD 11
-#  endif
+#    ifndef CPP11
+#      define CPP11
+#    endif
+#  else
+#    error "Standard must be c++11 or later"
 #endif
 
 
@@ -144,12 +157,13 @@ namespace xlog
     typedef str_umap<string_t> arg_map_t;
     typedef std::pair<string_t, string_t> str_pair_t;
 
-    typedef std::basic_ostream<char_t> ostream_t;
-    typedef std::basic_streambuf<char_t>* buffer_t;
-    typedef std::basic_fstream<char_t> file_t;
-    typedef std::basic_ifstream<char_t> ifile_t;
-    typedef std::basic_ofstream<char_t> ofile_t;
-    typedef std::basic_filebuf<char_t>* filebuf_t;
+    // use char instead of char_t because encoding will have to be utf-8
+    typedef std::basic_ostream<char> ostream_t;
+    typedef std::basic_streambuf<char>* buffer_t;
+    typedef std::basic_fstream<char> file_t;
+    typedef std::basic_ifstream<char> ifile_t;
+    typedef std::basic_ofstream<char> ofile_t;
+    typedef std::basic_filebuf<char>* filebuf_t;
 
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
