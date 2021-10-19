@@ -1,0 +1,31 @@
+{
+    "Loggers":
+    [
+        {
+            "name": "root",
+            "handlers": [ "std", "example handler" ]
+        },
+        {
+            "name": "example lgr",
+            "handlers": [ "example handler" ]
+        }
+    ],
+    "Handlers":
+    [
+        {
+            "type": "file",
+            "name": "example handler",
+            "format": "example fmt",
+            "min": "2",
+            "max": "10",
+            "files": [ "example.log" ]
+        }
+    ],
+    "Formats":
+    [
+        {
+            "name": "example fmt",
+            "format": "[${dtime}]:[${lgr}]:[${lvl}]\n ~  ${msg}"
+        }
+    ]
+}
