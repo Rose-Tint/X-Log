@@ -19,12 +19,12 @@ namespace xlog
         loggers.insert({ name, this });
     }
 
-    std::vector<Handler*> Logger::handlers(const uchar& lvl)
+    std::vector<HandlerBase*> Logger::handlers(const uchar& lvl)
     {
-        std::vector<Handler*> valids;
+        std::vector<HandlerBase*> valids;
         for (const string_t& hname : handler_names)
         {
-            Handler& handler = get_handler(hname);
+            HandlerBase& handler = get_handler(hname);
             if (handler.get_min() < lvl && lvl < handler.get_max())
             {
                 valids.push_back(&handler);
@@ -33,33 +33,30 @@ namespace xlog
         return valids;
     }
 
-    Logger& Logger::add_handler(const string_t& handler_name)
+    void Logger::add_handlers(const string_t& hname)
     {
-        handler_names.push_back(handler_name);
-        return *this;
+        handler_names.insert(hname);
     }
 
-    Logger& Logger::add_handlers(ilist<string_t> handlers)
+    template<class It, utils::EnableIterFor<string_t, It>>
+    void Logger::add_handlers(It begin, It end)
     {
-        for (string_t hname : handlers) add_handler(hname);
-        return *this;
+        for (auto iter = begin; iter < end; iter++)
+            handler_names.insert(iter);
     }
 
-    Logger& Logger::set_filter(const string_t& handler_name)
+    void Logger::set_filter(const string_t& hname)
     {
-        filter_name = handler_name;
-        return *this;
+        filter_name = hname;
     }
 
-    void Logger::log(const string_t& msg, const uchar& lvl, Record rcd)
+    void Logger::log(const string_t& msg, const uchar& lvl, Record&& rcd)
     {
         rcd.msg = msg;
-        rcd.lgr = lgr;
+        rcd.lgr = name;
         rcd.lvl = lvl;
         auto valid_handlers = handlers(lvl);
-        for (Handler* h_ptr : valid_handlers)
-        {
+        for (HandlerBase* h_ptr : valid_handlers)
             h_ptr->handle(rcd);
-        }
     }
 }

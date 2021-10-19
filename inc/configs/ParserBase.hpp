@@ -9,10 +9,11 @@ namespace xlog::cnfg
     class ParserBase
     {
       protected:
-        typedef std::char_traits<char_t> Traits;
-        typedef uchar flags_base_t;
+        typedef std::char_traits<char> Traits;
+        typedef std::string _string_t;
 
-        enum Flags_e : flags_base_t
+        // ushort instead of uchar to future proof
+        enum Flags : ushort
         {
             EOL           = 1 << 0, // if seek is at end of a line
             EOF           = 1 << 1, // if the end of a file has been reached
@@ -24,50 +25,48 @@ namespace xlog::cnfg
 
         struct Seek
         {
-            char_t curr = 0;
+            char curr = 0;
             ushort line = 0;
             uchar column = 0;
-            void inc(char_t);
+            void inc(char);
         };
 
-        friend inline Flags_e operator ~ (const Flags_e& flg)
-            { return static_cast<typename Flags_e>(~static_cast<flags_base_t>(flg)); }
-        friend inline Flags_e operator | (const Flags_e& lhs, const Flags_e& rhs)
-            { return static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) | static_cast<flags_base_t>(rhs)); }
-        friend inline Flags_e operator & (const Flags_e& lhs, const Flags_e& rhs)
-            { return static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) & static_cast<flags_base_t>(rhs)); }
-        friend inline Flags_e operator ^ (const Flags_e& lhs, const Flags_e& rhs)
-            { return static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) ^ static_cast<flags_base_t>(rhs)); }
-        friend inline Flags_e operator |= (Flags_e& lhs, Flags_e rhs)
-            { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) | static_cast<flags_base_t>(rhs)); }
-        friend inline Flags_e operator &= (Flags_e& lhs, Flags_e rhs)
-            { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) & static_cast<flags_base_t>(rhs)); }
-        friend inline Flags_e operator ^= (Flags_e& lhs, Flags_e rhs)
-            { lhs = static_cast<typename Flags_e>(static_cast<flags_base_t>(lhs) ^ static_cast<flags_base_t>(rhs)); }
+        friend inline Flags operator ~ (const Flags& flg)
+            { return static_cast<typename Flags>(~static_cast<ushort>(flg)); }
+        friend inline Flags operator | (const Flags& lhs, const Flags& rhs)
+            { return static_cast<typename Flags>(static_cast<ushort>(lhs) | static_cast<ushort>(rhs)); }
+        friend inline Flags operator & (const Flags& lhs, const Flags& rhs)
+            { return static_cast<typename Flags>(static_cast<ushort>(lhs) & static_cast<ushort>(rhs)); }
+        friend inline Flags operator ^ (const Flags& lhs, const Flags& rhs)
+            { return static_cast<typename Flags>(static_cast<ushort>(lhs) ^ static_cast<ushort>(rhs)); }
+        friend inline Flags operator |= (Flags& lhs, Flags rhs)
+            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) | static_cast<ushort>(rhs)); }
+        friend inline Flags operator &= (Flags& lhs, Flags rhs)
+            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) & static_cast<ushort>(rhs)); }
+        friend inline Flags operator ^= (Flags& lhs, Flags rhs)
+            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) ^ static_cast<ushort>(rhs)); }
 
+        const Delims delims;
         ifile_t file;
-        Flags_e flags;
+        Flags flags;
         Seek seek;
-        uchar scope;
-        char_t stmt_delim;
 
-        char_t get();
-        string_t get_word();
-        string_t get_until(char_t);
-        string_t get_until(const string_t&);
-        string_t get_through(const string_t&);
-        string_t get_statement();
+        char get();
+        _string_t get_until(bool (*)(char));
+        _string_t get_until(char);
+        _string_t get_until(const _string_t&);
+        _string_t get_through(const _string_t&);
         virtual ValueType get_value() = 0;
-        virtual _String get_key() = 0;
-        virtual _String get_string() = 0;
-        virtual _Map get_map() = 0;
-        virtual _Array get_array() = 0;
+        virtual std::pair<ValueType, ValueType> get_key_value() = 0;
+        virtual String get_string() = 0;
+        virtual Map get_map() = 0;
+        virtual Array get_array() = 0;
 
-        bool get(char_t&);
+        bool get(char&);
+
+        ParserBase(const fs::path& path, Delims);
 
       public:
-        explicit ParserBase(const fs::path& path, char_t);
-
         inline bool eol(void) const { return flags & EOL; }
         inline bool eof(void) const { return flags & EOF ; }
         inline bool scoping(void) const { return flags & SCOPING ; }

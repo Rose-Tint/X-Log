@@ -17,12 +17,12 @@ namespace xlog
 
         // set by ctr
         string_t func;
-        string_t file;
         uint line;
+        string_t file;
         arg_map_t args;
 
       public:
-        Record(const string_t&, const uint&, const string_t, str_pair_t = { });
+        Record(const string_t&, uint, const string_t&, ilist<str_pair_t> = { });
 
         // observers
         const string_t& get_msg() const { return msg; }
@@ -33,10 +33,14 @@ namespace xlog
         const arg_map_t& get_args() const { return args; }
 
         arg_map_t get_dict() const;
-        void add_arg(const string_t&, const string_t&);
+        void insert_args(const string_t&, const string_t&);
+        void insert_args(const str_pair_t&);
+        void insert_args(ilist<str_pair_t>);
+        template<class It, utils::EnableIterFor<str_pair_t, It> = true>
+        void insert_args(It, It);
 
 #if CPP_STD >= 20
-        Record(const std::source_location&, const arg_map_t&);
+        Record(const std::source_location&, ilist<str_pair_t>);
 #endif
     };
 }

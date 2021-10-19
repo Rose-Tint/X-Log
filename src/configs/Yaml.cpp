@@ -4,21 +4,17 @@
 #include "utils.hpp"
 
 
-// IN THE MIDDLE OF BEGINNING TO USE std::char_traits
+// TODO: update completely
 
 
 namespace xlog::cnfg
 {
     Yaml::Yaml(const fs::path& path)
-        : ParserBase(path, '\n')
+        : ParserBase(path, { '\n' })
     {
         char c = 0;
         while (file)
         {
-            parse_indent();
-            std::string line = get_statement();
-            utils::trim(line, ' ');
-
             // ...
         }
         file.close();
@@ -47,7 +43,7 @@ namespace xlog::cnfg
     // no leftover/trailing white space, remove (end) the last scope.
     // else if the scope is less than the current indent level, enter
     // a new scope
-    void Yaml::end_indentation()
+    void Yaml::end_idt()
     {
         scoping(false);
         if (idt_widths.size() > indent_lvl)
@@ -64,7 +60,7 @@ namespace xlog::cnfg
         scope = idt_widths.size();
     }
 
-    void Yaml::end_of_line()
+    void Yaml::endl()
     {
         indent_lvl = 0;
         indent_width = 0;
@@ -82,16 +78,16 @@ namespace xlog::cnfg
             if (Traits::eq(c, ' '))
                 add_idt_space(c);
             else if (Traits::eq(c, '\n'))
-                end_of_line();
+                endl();
             else break;
         }
-        end_indentation();
+        end_idt();
         if (exp_new_scope() && (scope <= beginning_scope))
             ;// throw...
         return scope;
     }
 
-    void Yaml::extract_map(ValueType& map_v)
+    ValueType Yaml::get_map()
     {
         map_v = _Map();
         uchar beg_scope = parse_indent();
@@ -122,13 +118,13 @@ namespace xlog::cnfg
 
             scoping(true);
             ValueType value { { }, type };
-            extract_value(value); // recurse
+            get_value(value); // recurse
             map[key] = value;
         }
         map_v.map = std::move(map);
     }
 
-    void Yaml::extract_array(ValueType& array_v)
+    ValueType Yaml::get_array()
     {
         array_v = _Array();
         uchar beg_scope = parse_indent();
@@ -154,7 +150,7 @@ namespace xlog::cnfg
             {
                 type = ValueType::ARRAY;
                 value = _Array();
-                extract_array(value); // i think?
+                get_array(value); // i think?
                 _String val = val.substr(1, val.size() - 1);
                 utils::trim(val, ' ');
                 value.array.insert(0, { val, ValueType::STRING });
@@ -169,12 +165,12 @@ namespace xlog::cnfg
                 type = ValueType::MAP;
 
             else type = ValueType::STRING;
-            extract_value(value);
+            get_value(value);
             array_v.array.push_back(value);
         }
     }
 
-    void Yaml::extract_value(ValueType& value)
+    void Yaml::get_value(ValueType& value)
     {
         switch (value.type_e)
         {
@@ -191,7 +187,7 @@ namespace xlog::cnfg
             extract_block_map(value);
             break;
           case (ValueType::MAP):
-            extract_map(value);
+            get_map(value);
             break;
 
           // parse looking for an array
@@ -199,7 +195,7 @@ namespace xlog::cnfg
             extract_block_array(value);
             break;
           case (ValueType::ARRAY):
-            extract_array(value);
+            get_array(value);
             break;
 
             default:
@@ -219,7 +215,7 @@ namespace xlog::cnfg
                 break;
             else if (Traits::eq(c, '\n'))
             {
-                end_of_line();
+                endl();
                 file.unget();
             }
             else key.append(1, c);
@@ -240,7 +236,7 @@ namespace xlog::cnfg
         if (map.count("handlers"))
         {
             ValueType array = { { }, ValueType::ARRAY };
-            extract_array(array);
+            get_array(array);
             for (ValueType hvalue : array.first)
             {
                 if (hvalue.type_e != ValueType::STRING)

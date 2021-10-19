@@ -6,40 +6,47 @@ namespace xlog::cnfg
 {
     class ValueType;
 
-    typedef str_umap<ValueType, std::hash<ValueType>, utils::case_ins_eq> _Map;
-    typedef std::vector<ValueType> _Array;
-    typedef string_t _String;
+    typedef umap<std::string, ValueType, std::hash<std::string>, utils::case_ins_eq> Map;
+    typedef std::vector<ValueType> Array;
+    typedef string_t String;
+
+    enum VType : char
+    {
+        // u = undetermined, t = type
+                          // u'ttt
+        STRING           = 0b0'100,
+        MAP              = 0b0'010,
+        ARRAY            = 0b0'001,
+        UNDETERMINED     = 0b1'000,
+          NOT_STRING     = 0b1'011, // == ARRAY | MAP | UNDETERMINED
+          NOT_ARRAY      = 0b1'110, // == STRING | MAP | UNDETERMINED
+          NOT_MAP        = 0b1'101, // == STRING | ARRAY | UNDETERMINED
+    };
+
+    inline constexpr VType operator ~  (VType);
+    inline constexpr VType operator |  (VType, VType);
+    inline constexpr VType operator &  (VType, VType);
+    inline constexpr VType operator ^  (VType, VType);
+    inline constexpr bool operator == (VType, VType);
+    inline constexpr bool is_determined(VType);
+    inline constexpr bool is_array(VType);
+    inline constexpr bool is_string(VType);
+    inline constexpr bool is_map(VType);
 
     struct ValueType
     {
-        enum _Type : signed short
-        {
-            // d = determined, t = type, n = nested, b = block
-                                // d'tttt'n'b
-            UNDETERMINED     = 0b1'0000'0'0,
-                NOT_STRING   = 0b1'1000'0'0,
-                NOT_ARRAY    = 0b1'0100'0'0,
-                NOT_MAP      = 0b1'0010'0'0,
-            MAP              = 0b0'1101'0'0,
-                BLOCK_MAP    = 0b0'1101'0'1,
-            ARRAY            = 0b0'1010'0'0,
-                NESTED_ARRAY = 0b0'1010'0'1,
-                BLOCK_ARRAY  = 0b0'1010'0'1,
-            STRING           = 0b0'0110'0'0,
-        };
+        ValueType(VType);
+        ValueType& operator=(const Array&);
+        ValueType& operator=(const Map&);
+        ValueType& operator=(const String&);
+        ValueType& operator=(VType);
 
-        ValueType(_Type);
-        ValueType& operator=(const _Array&);
-        ValueType& operator=(const _Map&);
-        ValueType& operator=(const _String&);
-        ValueType& operator=(const _Type&);
-
-        _Type type_e;
+        VType type;
         union
         {
-            _Map map;
-            _Array array;
-            _String string;
+            Map map;
+            Array array;
+            String string;
         };
 
         inline bool is_determined() const;

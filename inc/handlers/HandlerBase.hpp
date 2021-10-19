@@ -1,5 +1,5 @@
-#ifndef X_LOG_HANDLER_HPP
-#define X_LOG_HANDLER_HPP
+#ifndef X_LOG_HANDLERS_HANDLERBASE_HPP
+#define X_LOG_HANDLERS_HANDLERBASE_HPP
 
 #include "fwd_declares.hpp"
 #include "filter.hpp"
@@ -15,9 +15,6 @@ namespace xlog
 
         static lookup_map<HandlerBase> handlers;
 
-        std::vector<uptr_t<HandlerWatcher>> observers;
-        void notify() const;
-
       protected:
         string_t name;
         string_t format_name;
@@ -30,11 +27,6 @@ namespace xlog
         Filter& filter() const;
         Format& format() const;
 
-        HandlerBase(const string_t&, uchar);
-        HandlerBase(const string_t&, uchar, uchar);
-        HandlerBase(const string_t&, uchar);
-        HandlerBase(const string_t&, uptr_t<LogStreamBase>&&);
-
       public:
         HandlerBase() = delete;
         HandlerBase(const string_t&);
@@ -46,10 +38,9 @@ namespace xlog
         void set_format(const string_t&);
         void set_filter(const string_t&);
         void add_outstreams(buffer_t);
-        void add_outstreams(ilist<buffer_t>);
         void add_outstreams(const buffer_t*, const buffer_t*);
-        template<class It>
-        void add_outstreams(It, It, iter_tag<It>* = nullptr);
+        template<class It, utils::EnableIterFor<buffer_t, It> = true>
+        void add_outstreams(It, It);
 
         virtual bool handle(Record&) const = 0;
         const uchar& get_min() const { return min; }

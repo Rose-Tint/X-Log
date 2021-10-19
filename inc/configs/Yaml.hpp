@@ -15,19 +15,22 @@ namespace xlog::cnfg
         uchar indent_width;
         uchar indent_lvl;
 
-        uchar parse_indent(bool&);
-        LoggerConfigItf make_logger();
-        HandlerConfigItf make_handler();
-        FormatConfigItf make_format();
-        void add_idt_space(); // TOFIN
-        void end_indentation();
-        void end_of_line();
-        void get_key();
-        void extract_map(ValueType&); // TOFIN?
-        void extract_block_map(ValueType&); // TODO
-        void extract_array(ValueType&); // TOFIN
-        void extract_block_array(ValueType&); // TODO
-        void extract_value(ValueType&); // TOFIN?
+        void end_idt();
+        void add_space();
+        void make_format();
+        void make_logger();
+        void make_handler();
+        uchar parse_indent();
+        _Map get_block_map();
+        _Array get_block_array();
+        virtual _Map get_map() override;
+        virtual _String get_key() override;
+        virtual _Array get_array() override;
+        virtual _String get_string() override;
+        virtual ValueType get_value() override;
+        virtual void on_eol() override;
+        virtual void on_() override;
+        virtual void on_() override;
 
       public:
         explicit Yaml(const fs::path&);

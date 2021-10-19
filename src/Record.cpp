@@ -2,9 +2,21 @@
 
 namespace xlog
 {
-    
-    Recod::Record(const std::string& fl, const uchar& ln, const std::string fn, str_pair_t arg_pairs)
-        : file(fl), line(ln), func(fn), args(arg_pairs.begin(), arg_pairs.end()) { }
+    Record::Record(const string_t& fl, uint ln, const string_t& fn, ilist<str_pair_t> arg_pairs)
+        : file(fl), line(ln), func(fn)
+    {
+        insert_args(arg_pairs.begin(), arg_pairs.end());
+    }
+
+#ifdef CPP20
+    Record::Record(const std::source_location& info, ilist<str_pair_t> arg_pairs)
+        : file(info.file_name()),
+          line(info.line()),
+          func(info.function_name())
+    {
+        insert_args(pairs);
+    }
+#endif
 
     arg_map_t Record::get_dict() const
     {
@@ -20,11 +32,26 @@ namespace xlog
         return dict;
     }
 
-#ifdef CPP20
-    Record::Record(const std::source_location& info, const arg_map_t& arg_pairs)
-        : file(info.file_name()),
-          line(info.line()),
-          func(info.function_name()),
-          args(arg_pairs.begin(), arg_pairs.end()) { }
-#endif
+    void Record::insert_args(const string_t& key, const string_t& value)
+    {
+        args.insert({ key, value });
+    }
+
+    void Record::insert_args(str_pair_t pair)
+    {
+        insert_args(pair.first, pair.second);
+    }
+
+    void Record::insert_args(ilist<str_pair_t> pairs)
+    {
+        for (auto pair : pairs)
+            insert_args(pair);
+    }
+
+    template<class It, utils::EnableIterFor<str_pair_t, It>>
+    void Record::insert_args(It begin, It end)
+    {
+        for (auto iter = begin; iter < end; iter++)
+            insert_args(iter);
+    }
 }

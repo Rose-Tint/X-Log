@@ -1,10 +1,14 @@
 #include "configs/ParserBase.hpp"
 
+using std::pair;
+
+// TODO: continue to update
+
 
 namespace xlog::cnfg
 {
-    ParserBase::ParserBase(const fs::path& path, char_t statement_delim_char)
-        : stmt_delim(statement_delim_char)
+    ParserBase::ParserBase(const fs::path& path, pair<char, char> , pair<char, char>, pair<char, char>)
+        : delims()
     {
         if (!fs::is_regular_path(path))
             ;// throw...
@@ -31,55 +35,46 @@ namespace xlog::cnfg
     void ParserBase::Seek::inc(char c)
     {
         curr = c;
-        line += Traits::eq(c, stmt_delim);
-        column = (!Traits::eq(c, stmt_delim) * (column + 1));
+        line += Traits::eq(c, '\n');
+        column = (!Traits::eq(c, '\n') * (column + 1));
     }
 
-    std::string ParserBase::get_word()
+    string_t ParserBase::get_until(bool (*pred)(char))
     {
         char c = 0;
-        std::string word;
-        bool read = false;
-        bool is_space = true;
+        string_t str;
         while (get(c))
         {
-            is_space = std::isspace(c);
-            if (read)
-            {
-                if (is_space)
-                    break;
-                word.append(1, c);
-            }
-            else read |= !is_space;
+            if (pred(c))
+                return str;
+            str.append(1, c);
         }
-        return word;
     }
 
-    std::string ParserBase::get_until(char delim)
+    string_t ParserBase::get_until(char delim)
     {
         char c = 0;
-        std::string str;
+        string_t str;
         while (get(c))
         {
             if (Traits::eq(c, delim))
-                break;
+                return str;
             str.append(1, c);
         }
-        return str;
     }
 
-    std::string ParserBase::get_until(const std::string& delim_s)
+    string_t ParserBase::get_until(const string_t& delim_s)
     {
-        std::string str = get_through(delim_s);
+        string_t str = get_through(delim_s);
         return str.substr(0, str.size() - delim_s.size());
     }
 
-    std::string ParserBase::get_through(const std::string& delim_s)
+    string_t ParserBase::get_through(const string_t& delim_s)
     {
         const std::size_t d_size = delim_s.size();
         std::size_t cmp_idx = 0;
         char c = 0;
-        std::string str;
+        string_t str;
         str.reserve(d_size);
         while (get(c))
         {
@@ -89,25 +84,5 @@ namespace xlog::cnfg
             str.append(1, c);
         }
         return str;
-    }
-
-    std::string ParserBase::get_statement()
-    {
-        char c = 0;
-        std::string stmt;
-        bool read = false;
-        bool not_new_stmt = false;
-        while (get(c))
-        {
-            not_new_stmt = !Traits::eq(c, stmt_delim);
-            if (read)
-            {
-                if (not_new_stmt)
-                    stmt.append(1, c);
-                else break;
-            }
-            else read |= not_new_stmt;
-        }
-        return stmt;
     }
 }

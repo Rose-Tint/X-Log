@@ -20,8 +20,8 @@ namespace xlog
         explicit LogFile(const fs::path&);
         explicit LogFile(ilist<fs::path>);
         LogFile(fs::path*, fs::path*);
-        template<class Iter>
-        LogFile(Iter, Iter, iter_ta g<Iter>* = nullptr);
+        template<class It, utils::EnableIterFor<fs::path, It> = true>
+        LogFile(It, It);
 
         void add_output(const fs::path&);
     };

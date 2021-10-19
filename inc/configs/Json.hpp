@@ -12,11 +12,13 @@ namespace xlog::cnfg
 {
     class Json : public ParserBase, public ConfigTypeBase
     {
-        virtual ValueType get_value() override;
-        virtual _String get_key() override;
-        virtual _String get_string() override;
-        virtual _Map get_map() override;
-        virtual _Array get_array() override;
+        void skip_ws();
+        void skip_sp();
+        virtual void get_value(ValueType&) override;
+        virtual std::pair<ValueType, ValueType> get_key_value() override;
+        virtual String get_string() override { return get_key(); }
+        virtual Map get_map() override;
+        virtual Array get_array() override;
 
       public:
         Json(const fs::path);
