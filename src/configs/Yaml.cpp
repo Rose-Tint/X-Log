@@ -4,7 +4,7 @@
 #include "utils.hpp"
 
 
-// IN THE MIDDLE OF BEGINNING TO USE std::char_traits
+// TODO: update completely
 
 
 namespace xlog::cnfg

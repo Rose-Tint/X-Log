@@ -1,5 +1,7 @@
 #include "configs/Json.hpp"
 
+// TODO: allow `get_value` to determine type
+
 
 
 namespace xlog::cngf

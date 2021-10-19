@@ -1,5 +1,7 @@
 #include "configs/ValueType.hpp"
 
+// TODO: implement VType operators
+
 
 namespace xlog::cnfg
 {
@@ -74,25 +76,11 @@ namespace xlog::cnfg
     ValueType& ValueType::operator=(VType _type)
     {
         type = _type;
-        switch (type)
-        {
-          case (BLOCK_ARRAY): FALLTHROUGH
-          case (NESTED_ARRAY): FALLTHROUGH
-          case (ARRAY):
-            array = Array();
-            break;
-
-          case (BLOCK_MAP): FALLTHROUGH
-          case (MAP):
-            map = Map();
-            break;
-
-          case (STRING):
+        if (is_string(type))
             string = String();
-            break;
-
-          default:
-            ;
-        }
+        else if (is_array(type))
+            array = Array();
+        else if (is_map(type))
+            map = Map();
     }
 }

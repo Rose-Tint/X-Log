@@ -3,5 +3,5 @@
 
 namespace xlog::cnfg
 {
-    void ConfigTypeBase::add_logger(_Map)
+    void ConfigTypeBase::add_logger(_Map);
 }
