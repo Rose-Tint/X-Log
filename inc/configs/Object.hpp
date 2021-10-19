@@ -9,14 +9,14 @@ namespace xlog::cnfg
 {
     struct Object : public ConfigTypeBase
     {
-        void Loggers(ilist<LoggerConfigItf> lgrs)
-            { loggers.insert(loggers.end(), lgrs); }
-        void Handlers(ilist<HandlerConfigItf> hdlrs)
-            { handlers.insert(handlers.end(), hdlrs); }
-        void Filters(ilist<FilterConfigItf> fltrs)
-            { filters.insert(filters.end(), fltrs); }
-        void Formats(ilist<FormatConfigItf> fmts)
-            { formats.insert(formats.end(), fmts); }
+        Object& Loggers(ilist<LoggerConfigItf> lgrs)
+            { loggers.insert(loggers.end(), lgrs); return *this; }
+        Object& Handlers(ilist<HandlerConfigItf> hdlrs)
+            { handlers.insert(handlers.end(), hdlrs); return *this; }
+        Object& Filters(ilist<FilterConfigItf> fltrs)
+            { filters.insert(filters.end(), fltrs); return *this; }
+        Object& Formats(ilist<FormatConfigItf> fmts)
+            { formats.insert(formats.end(), fmts); return *this; }
     };
 }
 
