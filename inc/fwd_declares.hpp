@@ -1,4 +1,4 @@
-throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
+#ifndef X_LOG_FWD_DECLARES
 #define X_LOG_FWD_DECLARES
 
 #ifndef CPP_STD
@@ -23,7 +23,7 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #      define CPP11
 #    endif
 #  else
-#    error "Standard must be c++11 or later"
+#    error "X-Log: Standard must be c++11 or later"
 #endif
 
 
@@ -69,7 +69,6 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #include <memory>
 #include <cctype>
 #include <type_traits>
-#include <locale>
 
 // iostreaming
 #include <iostream>
@@ -79,12 +78,13 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <stack>
 #include <initializer_list>
 
 // Multithreading
 #include <thread>
 #include <mutex>
+
+#include "u8char_t.hpp"
 
 
 // ensure that filesystem xor experimental filesystem is included
@@ -112,7 +112,7 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #  elif __has_include( <experimental/filesystem> )
 #    define INC_STD_FS_EXP 1
 #  else
-#    error Could not find system header "<filesystem>" or "<experimental/filesystem>"
+#    error "Could not find system header \"<filesystem>\" or \"<experimental/filesystem>\""
 #  endif
 #  if INC_STD_FS_EXP
 #    include <experimental/filesystem>
@@ -127,11 +127,13 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 namespace xlog
 {
 #ifdef _WIN32
-    typedef wchar_t char_t;
+    typedef wchar_t os_char_t;
 #else
-    typedef char char_t;
+    typedef char os_char_t;
 #endif
-    typedef std::basic_string<char_t> string_t;
+
+    typedef std::basic_string<u8char_t> string_t;
+    typedef std::basic_string<os_char_t> os_string_t; //
 
     template<class T>
     using uptr_t = std::unique_ptr<T>;
@@ -157,44 +159,49 @@ namespace xlog
     typedef str_umap<string_t> arg_map_t;
     typedef std::pair<string_t, string_t> str_pair_t;
 
-    // use char instead of char_t because encoding will have to be utf-8
-    typedef std::basic_ostream<char> ostream_t;
-    typedef std::basic_streambuf<char>* buffer_t;
-    typedef std::basic_fstream<char> file_t;
-    typedef std::basic_ifstream<char> ifile_t;
-    typedef std::basic_ofstream<char> ofile_t;
-    typedef std::basic_filebuf<char>* filebuf_t;
+    typedef std::basic_ostream<u8char_t> ostream_t;
+    typedef std::basic_streambuf<u8char_t>* buffer_t;
+    typedef std::basic_fstream<u8char_t> file_t;
+    typedef std::basic_ifstream<u8char_t> ifile_t;
+    typedef std::basic_ofstream<u8char_t> ofile_t;
+    typedef std::basic_filebuf<u8char_t> filebuf_t;
+    typedef fbuff_t* fbuf_ptr_t;
 
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
 
-    namespace components
+    constexpr enum struct Components : char
     {
-        namespace config
-        {
-            static constexpr bool json;
-            static constexpr bool yaml;
-            static constexpr bool object;
-        };
+        Json,
+        Yaml,
+        Object,
+    };
+
+    namespace dtl
+    {
+        constexpr const u8char_t* c_ansi_pref = "\033["_u8;
+#ifdef CPP20
+        constexpr string_t ansi_pref(c_ansi_pref);
+#else
+        const string_t ansi_pref(c_ansi_pref);
+#endif
     }
 
-
     class Logger;
-    class HandlerBase;
-      class HandlerWatcher;
-      class FileHandler;
-    class Record;;
-    class Format;
-      class CharOutputIter;
-      class DateTimeFormat;
-      typedef string_t (*var_fmt_f)(const Record&);
+    class Record;
     class Filter;
     class Error;
-    class LogStreamBase;
-      class LogStreamIter;
+    class Config;
     class Thread;
+    class HandlerBase;
+        class FileHandler;
+    class Format;
+        class DateTimeFormat;
+        enum struct AnsiOption : char;
+    class LogStreamBase;
+        class LogFile;
 
     namespace cnfg
     {
@@ -207,12 +214,7 @@ namespace xlog
         class FormatConfigItf;
         class Yaml;
         class Json;
-
-        void config_yaml(const fs::path&);
-        void config_json(const fs::path&);
     }
-    void config(const fs::path&);
-    DEPRECATED void config(const ConfigTypeBase&);
 
 
     extern Logger& root;
