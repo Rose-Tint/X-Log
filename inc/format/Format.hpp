@@ -15,7 +15,7 @@ namespace xlog
 
         string_t name;
         DateTimeFormat dtf = def_dtf;
-        string_t fmt = def_fmt;
+        u8String fmt = def_fmt;
 
         arg_map_t get_args(const Record&) const;
 
@@ -24,14 +24,14 @@ namespace xlog
         explicit Format(const string_t&);
 
         static inline const DateTimeFormat def_dtf = DateTimeFormat();
-        static inline const string_t def_fmt = "${date} | ${file} - ln ${line}:\n -- ${msg}";
+        static inline const u8String def_fmt = "${date} | ${file} - ln ${line}:\n -- ${msg}"_u8;
 
-        string_t operator()(const Record&) const;
+        u8String operator()(const Record&) const;
         const string_t& get_name() const { return name; }
-        void set_fmt(const string_t& format) { fmt = format; }
-        void set_time(const string_t& tfmt) { dtf.time(tfmt); }
-        void set_date(const string_t& tfmt) { dtf.date(dfmt); }
-        void set_dtime(const string_t& tfmt) { dtf.datetime(dtfmt); }
+        void set_fmt(const u8String& format) { fmt = format; }
+        void set_time(const u8String& tfmt) { dtf.time(tfmt); }
+        void set_date(const u8String& tfmt) { dtf.date(dfmt); }
+        void set_dtime(const u8String& tfmt) { dtf.datetime(dtfmt); }
     };
 }
 

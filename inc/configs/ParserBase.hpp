@@ -48,10 +48,10 @@ namespace xlog::cnfg
         Seek seek;
 
         u8char_t get();
-        string_t get_until(bool (*)(const u8char_t&));
-        string_t get_until(const u8char_t&);
-        string_t get_until(const string_t&);
-        string_t get_through(const string_t&);
+        u8String get_until(bool (*)(const u8char_t&));
+        u8String get_until(const u8char_t&);
+        u8String get_until(const u8String&);
+        u8String get_through(const u8String&);
         virtual ValueType get_value() = 0;
         virtual std::pair<ValueType, ValueType> get_key_value() = 0;
         virtual String get_string() = 0;

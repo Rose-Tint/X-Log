@@ -21,12 +21,12 @@ namespace xlog::cnfg
         void make_logger();
         void make_handler();
         uchar parse_indent();
-        _Map get_block_map();
-        _Array get_block_array();
-        virtual _Map get_map() override;
-        virtual _String get_key() override;
-        virtual _Array get_array() override;
-        virtual _String get_string() override;
+        Map get_block_map();
+        Array get_block_array();
+        virtual Map get_map() override;
+        virtual String get_key() override;
+        virtual Array get_array() override;
+        virtual String get_string() override;
         virtual ValueType get_value() override;
         virtual void on_eol() override;
         virtual void on_() override;

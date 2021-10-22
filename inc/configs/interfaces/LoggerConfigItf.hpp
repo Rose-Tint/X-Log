@@ -9,8 +9,8 @@ namespace xlog::cnfg
 {
     class LoggerConfigItf : public ConfigItfBase
     {
-        std::vector<string_t> handlers = { };
-        string_t filter = "std";
+        std::vector<string_t> handlers;
+        string_t filter;
 
       public:
         LoggerConfigItf() = default;

@@ -9,24 +9,24 @@ namespace xlog::cnfg
 {
     class ConfigItf : public ConfigItfBase
     {
-        string_t format = "std";
-        string_t filter = "std";
-        uchar min = 0;
-        uchar max = -1;
-        std::vector<fs::path> files = { };
-        std::vector<buffer_t> buffers = { };
+        u8String format;
+        u8String filter;
+        uchar min;
+        uchar max;
+        std::vector<fs::path> files;
+        std::vector<buffer_t> buffers;
 
       public:
         HandlerConfigItf() = default;
 
-        const string_t& Format() const;
-        const string_t& Filter() const;
+        const u8String& Format() const;
+        const u8String& Filter() const;
         const uchar& Min() const;
         const uchar& Max() const;
         const std::vector<buffer_t> Buffers() const;
 
-        HandlerConfigItf& Format(const string_t&);
-        HandlerConfigItf& Filter(const string_t&);
+        HandlerConfigItf& Format(const u8String&);
+        HandlerConfigItf& Filter(const u8String&);
         HandlerConfigItf& Min(const uchar&);
         HandlerConfigItf& Max(const uchar&);
         HandlerConfigItf& Buffers(buffer_t);

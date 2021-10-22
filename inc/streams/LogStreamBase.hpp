@@ -13,10 +13,10 @@ namespace xlog
       protected:
         static mutex_t io_mtx;
 
-        virtual void vemit(const string_t&);
+        virtual void vemit(const u8String&);
         virtual void vflush();
         virtual void vflush(buffer_t);
-        virtual void write(buffer_t, const string_t&);
+        virtual void write(buffer_t, const u8String&);
 
         // current problem: waste of memory when a thread finishes
         // execution until it gets flushed due to staying in vector
@@ -41,7 +41,7 @@ namespace xlog
         void add_outstreams(buffer_t buffer) { buffers.push_back(buffer); }
         template<class It, utils::EnableIterFor<buffer_t, It> = true>
         void add_outstreams(It, It);
-        void emit(const string_t&);
+        void emit(const u8String&);
         void flush();
     };
 }

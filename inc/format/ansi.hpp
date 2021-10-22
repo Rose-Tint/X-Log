@@ -53,12 +53,12 @@ namespace xlog
         no_sup_or_sub  = 75,
     };
 
-    string_t operator "" _ansi(const char*);
-    string_t ansi_format(const char*);
-    string_t ansi_format(AnsiOpts);
-    void ansi_format(string_t&);
-    void ansi_format(string_t&, AnsiOpts);
-    void ansi_format(string_t&, ilist<AnsiOpts>);
+    u8String operator "" _ansi(const char*);
+    u8String ansi_format(const char*);
+    u8String ansi_format(AnsiOpts);
+    void ansi_format(u8String&);
+    void ansi_format(u8String&, AnsiOpts);
+    void ansi_format(u8String&, ilist<AnsiOpts>);
 }
 
 #endif

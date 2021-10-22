@@ -132,8 +132,9 @@ namespace xlog
     typedef char os_char_t;
 #endif
 
-    typedef std::basic_string<u8char_t> string_t;
-    typedef std::basic_string<os_char_t> os_string_t; //
+    typedef std::basic_string<u8char_t> u8String;
+    typedef std::string string_t;
+    typedef std::basic_string<os_char_t> os_string_t;
 
     template<class T>
     using uptr_t = std::unique_ptr<T>;
@@ -155,7 +156,7 @@ namespace xlog
     typedef unsigned short ushort;
     typedef unsigned char uchar;
 
-    typedef std::unordered_set<string_t> str_uset_t;
+    typedef uset<string_t> str_uset_t;
     typedef str_umap<string_t> arg_map_t;
     typedef std::pair<string_t, string_t> str_pair_t;
 
@@ -164,15 +165,14 @@ namespace xlog
     typedef std::basic_fstream<u8char_t> file_t;
     typedef std::basic_ifstream<u8char_t> ifile_t;
     typedef std::basic_ofstream<u8char_t> ofile_t;
-    typedef std::basic_filebuf<u8char_t> filebuf_t;
-    typedef fbuff_t* fbuf_ptr_t;
+    typedef std::basic_filebuf<u8char_t>* filebuf_t;
 
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
 
-    constexpr enum struct Components : char
+    enum struct Components : char
     {
         Json,
         Yaml,
@@ -212,15 +212,16 @@ namespace xlog
         class HandlerConfigItf;
         class FilterConfigItf;
         class FormatConfigItf;
+        class Object;
         class Yaml;
         class Json;
     }
 
 
-    extern Logger& root;
-    extern Handler& stdhdlr;
-    extern Format& stdfmt;
-    extern Filter& stdfilt;
+    extern Logger root;
+    extern Handler stdhdlr;
+    extern Format stdfmt;
+    extern Filter stdfilt;
 
 
     Logger& get_logger();

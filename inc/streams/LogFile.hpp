@@ -9,7 +9,7 @@ namespace xlog
 {
     class LogFile : public LogStreamBase
     {
-        virtual void vwrite(const string_t&) override;
+        virtual void vwrite(const u8String&) override;
         virtual void vflush() override;
 
       public:

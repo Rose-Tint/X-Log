@@ -11,29 +11,29 @@ namespace xlog
         friend class Logger;
 
         // set to default because Logger will set them post construction
-        string_t msg = "";
-        string_t lgr = "";
+        u8String msg = "";
+        u8String lgr = "";
         uchar lvl = 0;
 
         // set by ctr
-        string_t func;
+        u8String func;
         uint line;
-        string_t file;
+        u8String file;
         arg_map_t args;
 
       public:
-        Record(const string_t&, uint, const string_t&, ilist<str_pair_t> = { });
+        Record(const u8String&, uint, const u8String&, ilist<str_pair_t> = { });
 
         // observers
-        const string_t& get_msg() const { return msg; }
-        const string_t& get_lgr() const { return lgr; }
+        const u8String& get_msg() const { return msg; }
+        const u8String& get_lgr() const { return lgr; }
         const uchar& get_lvl() const { return lvl; }
-        const string_t& get_file() const { return file; }
+        const u8String& get_file() const { return file; }
         const uint& get_line() const { return line; }
         const arg_map_t& get_args() const { return args; }
 
         arg_map_t get_dict() const;
-        void insert_args(const string_t&, const string_t&);
+        void insert_args(const u8String&, const u8String&);
         void insert_args(const str_pair_t&);
         void insert_args(ilist<str_pair_t>);
         template<class It, utils::EnableIterFor<str_pair_t, It> = true>
