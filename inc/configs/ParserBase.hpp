@@ -8,11 +8,7 @@ namespace xlog::cnfg
 {
     class ParserBase
     {
-      protected:
-        typedef std::char_traits<char> Traits;
-        typedef std::string _string_t;
-
-        // ushort instead of uchar to future proof
+        // ushort instead of uchar to future proof for additional flags
         enum Flags : ushort
         {
             EOL           = 1 << 0, // if seek is at end of a line
@@ -25,60 +21,63 @@ namespace xlog::cnfg
 
         struct Seek
         {
-            char curr = 0;
+            char8_t curr = 0;
             ushort line = 0;
             uchar column = 0;
-            void inc(char);
+            void inc(char8_t);
         };
 
-        friend inline Flags operator ~ (const Flags& flg)
+        friend constexpr Flags operator ~ (const Flags& flg)
             { return static_cast<typename Flags>(~static_cast<ushort>(flg)); }
-        friend inline Flags operator | (const Flags& lhs, const Flags& rhs)
+        friend constexpr Flags operator | (const Flags& lhs, const Flags& rhs)
             { return static_cast<typename Flags>(static_cast<ushort>(lhs) | static_cast<ushort>(rhs)); }
-        friend inline Flags operator & (const Flags& lhs, const Flags& rhs)
+        friend constexpr Flags operator & (const Flags& lhs, const Flags& rhs)
             { return static_cast<typename Flags>(static_cast<ushort>(lhs) & static_cast<ushort>(rhs)); }
-        friend inline Flags operator ^ (const Flags& lhs, const Flags& rhs)
+        friend constexpr Flags operator ^ (const Flags& lhs, const Flags& rhs)
             { return static_cast<typename Flags>(static_cast<ushort>(lhs) ^ static_cast<ushort>(rhs)); }
-        friend inline Flags operator |= (Flags& lhs, Flags rhs)
-            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) | static_cast<ushort>(rhs)); }
-        friend inline Flags operator &= (Flags& lhs, Flags rhs)
-            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) & static_cast<ushort>(rhs)); }
-        friend inline Flags operator ^= (Flags& lhs, Flags rhs)
-            { lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) ^ static_cast<ushort>(rhs)); }
+        friend constexpr Flags& operator |= (Flags& lhs, const Flags& rhs)
+            { return (lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) | static_cast<ushort>(rhs))); }
+        friend constexpr Flags& operator &= (Flags& lhs, const Flags& rhs)
+            { return (lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) & static_cast<ushort>(rhs))); }
+        friend constexpr Flags& operator ^= (Flags& lhs, const Flags& rhs)
+            { return (lhs = static_cast<typename Flags>(static_cast<ushort>(lhs) ^ static_cast<ushort>(rhs))); }
 
-        const Delims delims;
-        ifile_t file;
+
+        explicit ParserBase(const fs::path&);
+
+        filebuf_t file;
         Flags flags;
         Seek seek;
 
-        char get();
-        _string_t get_until(bool (*)(char));
-        _string_t get_until(char);
-        _string_t get_until(const _string_t&);
-        _string_t get_through(const _string_t&);
+        char8_t get();
+        string_t get_until(bool (*)(char8_t));
+        string_t get_until(char8_t);
+        string_t get_until(const string_t&);
+        string_t get_through(const string_t&);
         virtual ValueType get_value() = 0;
         virtual std::pair<ValueType, ValueType> get_key_value() = 0;
         virtual String get_string() = 0;
         virtual Map get_map() = 0;
         virtual Array get_array() = 0;
 
-        bool get(char&);
+        bool get(char8_t&);
 
-        ParserBase(const fs::path& path, Delims);
-
-      public:
-        inline bool eol(void) const { return flags & EOL; }
-        inline bool eof(void) const { return flags & EOF ; }
-        inline bool scoping(void) const { return flags & SCOPING ; }
-        inline bool reading(void) const { return flags & READING ; }
-        inline bool newline(void) const { return flags & NEWLINE ; }
-        inline bool exp_new_scope() const { return flags & EXP_NEW_SCOPE ; }
-        inline void eol(bool val) { flags |= (val) ? EOL: flags; }
-        inline void eof(bool val) { flags |= (val) ? EOF : flags; }
-        inline void scoping(bool val) { flags |= (val) ? SCOPING : flags; }
-        inline void reading(bool val) { flags |= (val) ? READING : flags; }
-        inline void newline(bool val) { flags |= (val) ? NEWLINE : flags; }
-        inline void exp_new_scope(bool val) { flags |= (val) ? EXP_NEW_SCOPE : flags; }
+        constexpr bool eol          (void) const { return (flags & EOL) != 0; }
+        constexpr bool eof          (void) const { return (flags & EOF) != 0; }
+        constexpr bool scoping      (void) const { return (flags & SCOPING) != 0; }
+        constexpr bool reading      (void) const { return (flags & READING) != 0; }
+        constexpr bool newline      (void) const { return (flags & NEWLINE) != 0; }
+        constexpr bool exp_new_scope(void) const { return (flags & EXP_NEW_SCOPE) != 0; }
+        constexpr void eol          (bool val) { flags |= (val) ? EOL: flags; }
+        constexpr void eof          (bool val) { flags |= (val) ? EOF : flags; }
+        constexpr void scoping      (bool val) { flags |= (val) ? SCOPING : flags; }
+        constexpr void reading      (bool val) { flags |= (val) ? READING : flags; }
+        constexpr void newline      (bool val) { flags |= (val) ? NEWLINE : flags; }
+        constexpr void exp_new_scope(bool val) { flags |= (val) ? EXP_NEW_SCOPE : flags; }
+        constexpr const Flags& set_flg(Flags flg, bool val)
+            { return (flags &= (val) ? (flags | flg) : (~flg)); }
+        constexpr const Flags& flip_flg(Flags flg)
+            { return (flags = ((flags & flg) == 0) ? flags | flg : flags & !flg); }
     };
 }
 

@@ -1,4 +1,4 @@
-throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
+#ifndef X_LOG_FWD_DECLARES
 #define X_LOG_FWD_DECLARES
 
 #ifndef CPP_STD
@@ -23,11 +23,11 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #      define CPP11
 #    endif
 #  else
-#    error "Standard must be c++11 or later"
+#    error X-Log: Standard must be c++11 or later
 #endif
 
 
-#if CPP_STD == 20
+#if CPP_STD >= 20
 #  include <version>
 #  ifndef LIKELY
 #    define LIKELY [[likely]]
@@ -69,7 +69,6 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #include <memory>
 #include <cctype>
 #include <type_traits>
-#include <locale>
 
 // iostreaming
 #include <iostream>
@@ -79,7 +78,6 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <stack>
 #include <initializer_list>
 
 // Multithreading
@@ -127,11 +125,15 @@ throw err::InvalidArgName(curr_var);#ifndef X_LOG_FWD_DECLARES
 namespace xlog
 {
 #ifdef _WIN32
-    typedef wchar_t char_t;
+    typedef wchar_t oschar_t;
 #else
-    typedef char char_t;
+    typedef char oschar_t;
 #endif
-    typedef std::basic_string<char_t> string_t;
+#if CPP_STD < 20
+    typedef char char8_t;
+#endif
+    typedef std::basic_string<oschar_t> osstring_t;
+    typedef std::basic_string<char8_t> string_t;
 
     template<class T>
     using uptr_t = std::unique_ptr<T>;
@@ -153,48 +155,35 @@ namespace xlog
     typedef unsigned short ushort;
     typedef unsigned char uchar;
 
-    typedef std::unordered_set<string_t> str_uset_t;
+    typedef uset<string_t> str_uset_t;
     typedef str_umap<string_t> arg_map_t;
     typedef std::pair<string_t, string_t> str_pair_t;
 
     // use char instead of char_t because encoding will have to be utf-8
-    typedef std::basic_ostream<char> ostream_t;
-    typedef std::basic_streambuf<char>* buffer_t;
-    typedef std::basic_fstream<char> file_t;
-    typedef std::basic_ifstream<char> ifile_t;
-    typedef std::basic_ofstream<char> ofile_t;
-    typedef std::basic_filebuf<char>* filebuf_t;
+    typedef std::basic_ostream<char8_t> ostream_t;
+    typedef std::basic_streambuf<char8_t>* buffer_t;
+    typedef std::basic_fstream<char8_t> file_t;
+    typedef std::basic_ifstream<char8_t> ifile_t;
+    typedef std::basic_ofstream<char8_t> ofile_t;
+    typedef std::basic_filebuf<char8_t>* filebuf_t;
 
     typedef std::mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_gaurd_t;
     typedef std::unique_lock<mutex_t> ulock_t;
 
 
-    namespace components
-    {
-        namespace config
-        {
-            static constexpr bool json;
-            static constexpr bool yaml;
-            static constexpr bool object;
-        };
-    }
-
-
     class Logger;
-    class HandlerBase;
-      class HandlerWatcher;
-      class FileHandler;
-    class Record;;
-    class Format;
-      class CharOutputIter;
-      class DateTimeFormat;
-      typedef string_t (*var_fmt_f)(const Record&);
+    class Record;
     class Filter;
-    class Error;
-    class LogStreamBase;
-      class LogStreamIter;
+    class Config;
     class Thread;
+    class HandlerBase;
+        class FileHandler;
+    class Format;
+        class DateTimeFormat;
+        enum struct AnsiOption : char;
+    class LogStreamBase;
+        class LogFile;
 
     namespace cnfg
     {
@@ -205,20 +194,16 @@ namespace xlog
         class HandlerConfigItf;
         class FilterConfigItf;
         class FormatConfigItf;
+        class Object;
         class Yaml;
         class Json;
-
-        void config_yaml(const fs::path&);
-        void config_json(const fs::path&);
     }
-    void config(const fs::path&);
-    DEPRECATED void config(const ConfigTypeBase&);
 
 
-    extern Logger& root;
-    extern Handler& stdhdlr;
-    extern Format& stdfmt;
-    extern Filter& stdfilt;
+    extern Logger root;
+    extern Handler stdhdlr;
+    extern Format stdfmt;
+    extern Filter stdfilt;
 
 
     Logger& get_logger();

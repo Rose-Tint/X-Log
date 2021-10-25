@@ -14,6 +14,7 @@ namespace xlog::cnfg
     {
         void skip_ws();
         void skip_sp();
+        bool is_colon() const;
         virtual void get_value(ValueType&) override;
         virtual std::pair<ValueType, ValueType> get_key_value() override;
         virtual String get_string() override { return get_key(); }

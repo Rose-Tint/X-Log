@@ -6,9 +6,11 @@
 
 namespace xlog::utils
 {
-    bool case_ins_eq(const std::string&, const std::string&);
+    template<class CharT, class = std::char_traits<CharT>>
+    bool case_ins_eq(const std::basic_string<CharT>&, const std::basic_string<CharT>&);
 
-    void trim(string_t&, char_t);
+    template<class CharT, class = std::char_traits<CharT>>
+    void trim(std::basic_string<CharT>&, CharT);
 
     template<class I>
     using iter_tag = typename std::iterator_traits<I>::iterator_category;

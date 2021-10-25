@@ -7,60 +7,59 @@ using std::pair;
 
 namespace xlog::cnfg
 {
-    ParserBase::ParserBase(const fs::path& path, pair<char, char> , pair<char, char>, pair<char, char>)
-        : delims()
+    ParserBase::ParserBase(const fs::path& path)
     {
         if (!fs::is_regular_path(path))
             ;// throw...
         file.open(path);
     }
 
-    char ParserBase::get()
+    char8_t ParserBase::get()
     {
-        char c;
+        char8_t c;
         get(c);
         return c;
     }
 
-    bool ParserBase::get(char& c)
+    bool ParserBase::get(char8_t& c)
     {
         newline(eol());
-        file.get(c);
-        eol(Traits::eq(c, stmt_delim));
-        eof(file.eof());
+        auto i = file.snextc();
+        if (i == std::char_traits<char8_t>::eof())
+        {
+            eof(true);
+            return false;
+        }
+        c = std::char_traits<char8_t>::to_char_type(i));
+        eol(c == u8'\n'));
+        eof(false);
         seek.inc(c);
         return (bool)file;
     }
 
-    void ParserBase::Seek::inc(char c)
+    void ParserBase::Seek::inc(const char8_t& c)
     {
         curr = c;
-        line += Traits::eq(c, '\n');
-        column = (!Traits::eq(c, '\n') * (column + 1));
+        line += (c == '\n');
+        column = ((c != '\n') * (column + 1));
     }
 
-    string_t ParserBase::get_until(bool (*pred)(char))
+    string_t ParserBase::get_until(bool (*pred)(const char8_t&))
     {
-        char c = 0;
+        char8_t c = seek.curr;
         string_t str;
-        while (get(c))
-        {
-            if (pred(c))
-                return str;
+        while ((pred(c)) && get(c))
             str.append(1, c);
-        }
+        return str;
     }
 
-    string_t ParserBase::get_until(char delim)
+    string_t ParserBase::get_until(const char8_t& delim)
     {
-        char c = 0;
+        char8_t c = seek.curr;
         string_t str;
-        while (get(c))
-        {
-            if (Traits::eq(c, delim))
-                return str;
+        while ((c != delim) && get(c))
             str.append(1, c);
-        }
+        return str;
     }
 
     string_t ParserBase::get_until(const string_t& delim_s)
@@ -73,7 +72,7 @@ namespace xlog::cnfg
     {
         const std::size_t d_size = delim_s.size();
         std::size_t cmp_idx = 0;
-        char c = 0;
+        char8_t c = 0;
         string_t str;
         str.reserve(d_size);
         while (get(c))

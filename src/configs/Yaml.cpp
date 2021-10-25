@@ -12,7 +12,7 @@ namespace xlog::cnfg
     Yaml::Yaml(const fs::path& path)
         : ParserBase(path, { '\n' })
     {
-        char c = 0;
+        char8_t c = 0;
         while (file)
         {
             // ...
@@ -27,7 +27,7 @@ namespace xlog::cnfg
     {
         scope = 0;
         scoping(true);
-        if (idt_widths.size() >= indent_lvl)
+        if (idt_widths.size() > indent_lvl)
         {
             indent_width += 1;
             if (idt_widths[indent_lvl] == indent_width)
@@ -36,7 +36,9 @@ namespace xlog::cnfg
                 indent_lvl += 1;
             }
         }
-        else // TODO
+        else if (idt_widths.size() == indent_lvl)
+            idt_widths.back() += 1;
+        else idt_widths.push_back(indent_width);
     }
 
     // if the scope is greater than the current level and there is
@@ -69,93 +71,74 @@ namespace xlog::cnfg
 
     uchar Yaml::parse_indent()
     {
-        uchar beginning_scope = scope;
-        if (Traits::eq(seek.curr, ' '))
+        uchar beg_scope = scope;
+        char8_t c = seek.curr;
+        if (seek.curr != u8' ')
             return scope;
-        else while (get(c))
+        while (get(c))
         {
             // use if-else over switch to be allowed to break the loop
-            if (Traits::eq(c, ' '))
+            if (c == ' ')
                 add_idt_space(c);
-            else if (Traits::eq(c, '\n'))
+            else if (c == '\n')
                 endl();
             else break;
         }
         end_idt();
-        if (exp_new_scope() && (scope <= beginning_scope))
+        if (exp_new_scope() && (scope <= beg_scope))
             ;// throw...
         return scope;
     }
 
-    ValueType Yaml::get_map()
+    Map Yaml::get_map()
     {
-        map_v = _Map();
+        Map map;
         uchar beg_scope = parse_indent();
-        uchar new_scope = scope;
+        scope += 1;
         scoping(false);
-        ValueType::_Type type = ValueType::UNDETERMINED;
-        _String key;
-        _String val;
 
-        while (1)
-        {
-            new_scope = parse_indent();
-            if (beg_scope == new_scope)
-                break;
-            key = get_key();
-            if (key.size() == 0)
-                ;// throw...
-            if (Traits::eq(seek.curr, '\n') || eol())
-                exp_new_scope(true);
-            else
-            {
-                val = get_statement();
-                utils::trim(val, ' ');
-                if (Traits::eq(val.front(), '{') && Traits::eq(val.back(), '}'))
-                    type = ValueType::BLOCK_MAP;
-                else type = ValueType::STRING;
-            }
-
-            scoping(true);
-            ValueType value { { }, type };
-            get_value(value); // recurse
-            map[key] = value;
-        }
-        map_v.map = std::move(map);
+        while (scope > beg_scope)
+            map.insert(get_key_value());
+        map.map = std::move(map);
     }
 
-    ValueType Yaml::get_array()
+    Array Yaml::get_array()
     {
-        array_v = _Array();
-        uchar beg_scope = parse_indent();
-        uchar new_scope = scope;
-        scoping(false);
-        ValueType::_Type type = ValueType::UNDETERMINED;
-        ValueType value;
-        _String val;
+        Array array;
+        uchar beg_scope = 0;
+        ValueType elem;
+        String buf;
 
-        while (1)
+        if (newline())
+            parse_indent();
+        else skip_sp();
+        beg_scope = scope++;
+        // inc scope so the while executes.
+        // scope will be fixed as soon as
+        // end_idt() is called.
+        // <sub>do-whiles are ugly</sub>
+
+        while (scope > beg_scope)
         {
-            new_scope = parse_indent();
-            if (beg_scope >= new_scope)
-                break;
-            if (Traits::eq(seek.curr, '-'))
-                ;// throw...
-            val = get_statement();
-            utils::trim(val, ' ');
+            parse_indent();
+            buf = get_until(u8'\n');
+            utils::trim(buf, u8' ');
 
-            if (val.size() == 0)
-                ;// throw...
-            if (Traits::eq(val.front(), '-'))
+            if (buf.size() == 0)
             {
-                type = ValueType::ARRAY;
-                value = _Array();
-                get_array(value); // i think?
-                _String val = val.substr(1, val.size() - 1);
-                utils::trim(val, ' ');
-                value.array.insert(0, { val, ValueType::STRING });
-                array_v.array.push_back(value);
-                continue;
+                ;// throw...
+            }
+            if (buf.front() == u8'-')
+            {
+                buf = buf.substr(1);
+                utils::trim(val, u8' ');
+                auto colon_idx = buf.find(':');
+                if (colon_idx != String::npos)
+                {
+                    if (colon_idx == buf.back())
+                        elem.type = ValueType::MAP
+                }
+
             }
             else if (Traits::eq(val.front(), '[') && Traits::eq(val.back(), ']'))
                 type = ValueType::BLOCK_ARRAY;
@@ -163,7 +146,6 @@ namespace xlog::cnfg
                 type = ValueType::BLOCK_MAP;
             else if (Traits::eq(val.back(), ':'))
                 type = ValueType::MAP;
-
             else type = ValueType::STRING;
             get_value(value);
             array_v.array.push_back(value);
@@ -177,7 +159,7 @@ namespace xlog::cnfg
           // parse looking for a string
           case (ValueType::STRING):{
             exp_new_scope(false);
-            _String str = get_statement();
+            String str = get_statement();
             utils::trim(str, ' ');
             value.string = str;
             } break;
@@ -203,17 +185,17 @@ namespace xlog::cnfg
         }
     }
 
-    Yaml::_String Yaml::get_key()
+    String Yaml::get_key()
     {
         if (scoping())
             parse_indent();
-        char c = 0;
+        char8_t c = 0;
         key.clear();
         while (get(c))
         {
-            if (Traits::eq(c, ':'))
+            if (c == ':')
                 break;
-            else if (Traits::eq(c, '\n'))
+            else if (c == '\n')
             {
                 endl();
                 file.unget();
@@ -223,48 +205,45 @@ namespace xlog::cnfg
         return key;
     }
 
-    LoggerConfigItf Yaml::make_logger(const _Map& map)
+    std::pair<ValueType, ValueType> Yaml::get_key_value()
     {
-        LoggerConfigItf itf;
-        if (map.count("name"))
-            itf.Name(map.at("name"));
-        else ;// throw...
-
-        if (map.count("filter"))
-            itf.Filter(map.at("filter"));
-
-        if (map.count("handlers"))
+        String key = get_key();
+        ValueType::_Type type = ValueType::UNDETERMINED;
+        ValueType value(type);
+        String val_str;
+        if (key.size() == 0)
+            ;// throw...
+        if (!eol())
         {
-            ValueType array = { { }, ValueType::ARRAY };
-            get_array(array);
-            for (ValueType hvalue : array.first)
+            val_str = get_until(u8'\n');
+            utils::trim(val_str, u8' ');
+            if (val_str.empty())
             {
-                if (hvalue.type_e != ValueType::STRING)
-                    ;// throw...
-                itf.Handlers({ hvalue.string });
+                get(); // skip new line char
+                auto is_dash_or_brace_or_bracket =
+                    [](const char8_t& c) -> bool
+                        { return (c == u8'-' || c == u8'{' || c ==  u8'['); };
+                val_str = get_until(is_dash_or_brace_or_bracket);
+                utils::trim(val_str, u8' ');
+                switch (val_str.back())
+                {
+                  case (u8'['):
+                  case (u8'-'):{
+                    type = ValueType::ARRAY;
+                  } break;
+                  case (u8'{'):{
+                    type = ValueType::MAP;
+                  } break;
+                  default: ;// throw...
+                }
+                get(); // skip [ { or -
             }
+            else type = ValueType::STRING;
         }
-        return itf;
-    }
-
-    HandlerConfigItf Yaml::make_handler(const _Map& map)
-    {
-        HandlerConfigItf itf;
-        if (map.count("name"))
-            itf.Name(map.at("name"));
         else ;// throw...
 
-        if (map.count("filter"))
-            itf.Filter(map.at("filter"));
-        if (map.count("format"))
-            itf.Format(map.at("format"));
-        if (map.count("min"))
-            itf.Min(map.at("min"));
-        if (map.count("max"))
-            itf.Max(map.at("max"));
-
-        // files...
-
-        return handler;
+        value.type = type;
+        get_value(value);
+        return { ValueType(key), value };
     }
 }
